@@ -1,0 +1,17 @@
+name = "tarqan-lumo-projeksiyon"
+main = "src/worker.ts"
+compatibility_date = "2025-04-01"
+account_id = "a7399df770e8fc3f1d8db985f6fa449c"
+workers_dev = true
+
+routes = [
+  { pattern = "rasprojector.oplog.app", custom_domain = true }
+]
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+
+[[r2_buckets]]
+binding = "LIBRARY"
+bucket_name = "tarqan-lumo-projeksiyon-library"

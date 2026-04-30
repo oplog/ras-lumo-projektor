@@ -27,12 +27,21 @@ interface LayoutState {
   validationCount: number;
   /** Surface geometry kind, drives the homography-fix algorithm. */
   geometryMode: 'pod' | 'rebin';
+  /** Post (gap) width between two rebins, as fraction of one cell width.
+   *  Only used in rebin mode (asym500). 0.5 = field-validated default. */
+  rebinGapFactor: number;
+  /** Library entry id of the file currently loaded in the editor.
+   *  All in-place edits (Auto Fix, gap slider, cell rename) write back
+   *  to this row. Null when nothing is loaded. */
+  currentEntryId: string | null;
 
   setLayout: (l: Layout) => void;
   resetLayout: () => void;
   selectCell: (i: number | null) => void;
   setLiveRegenerate: (v: boolean) => void;
   setGeometryMode: (m: 'pod' | 'rebin') => void;
+  setRebinGapFactor: (f: number) => void;
+  setCurrentEntryId: (id: string | null) => void;
 
   setStationName: (s: string) => void;
   updateScreen: (patch: Partial<ScreenConfig>) => void;
@@ -114,9 +123,35 @@ export const useLayoutStore = create<LayoutState>()(
   selectedCellIndex: null,
   liveRegenerate: true,
   validationCount: 0,
-  geometryMode: 'pod',
+  geometryMode: 'rebin',
+  rebinGapFactor: 0.5,
+  currentEntryId: null,
 
   setGeometryMode: (m) => set({ geometryMode: m }),
+  setCurrentEntryId: (id) => set({ currentEntryId: id }),
+  setRebinGapFactor: (f) =>
+    set((s) => {
+      const clamped = Math.max(0, Math.min(2, f));
+      // If we're in rebin mode and have a valid boundary, regenerate cells
+      // immediately so the slider feels live. In pod mode the gap factor is
+      // unused so we just update the value.
+      if (s.geometryMode !== 'rebin' || s.layout.boundaryCorners.length !== 4) {
+        return { rebinGapFactor: clamped };
+      }
+      const corners = s.layout.boundaryCorners;
+      const ordered = canonicalizeCorners([corners[0], corners[1], corners[2], corners[3]]);
+      const cells = generateGridHomography(
+        ordered,
+        s.layout.rowCount,
+        s.layout.columnsPerRow,
+        { canonicalize: false, uMode: 'asym500', gapFactor: clamped },
+      );
+      return {
+        rebinGapFactor: clamped,
+        layout: { ...s.layout, boundaryCorners: ordered, cells },
+        selectedCellIndex: null,
+      };
+    }),
 
   setLayout: (layout) =>
     // When loading an existing XML, default to non-live regenerate so manual
@@ -264,6 +299,7 @@ export const useLayoutStore = create<LayoutState>()(
         {
           canonicalize: false, // already done above if needed
           uMode: isRebin ? 'asym500' : 'uniform',
+          gapFactor: s.rebinGapFactor,
         },
       );
       return {

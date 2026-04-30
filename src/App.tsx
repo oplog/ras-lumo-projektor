@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { EditorCanvas } from './components/mapper/EditorCanvas';
 import { Sidebar } from './components/mapper/Sidebar';
 import { Toolbar } from './components/mapper/Toolbar';
+import { ToastHost } from './components/ToastHost';
 import { loadDraft, startAutoSave } from './lib/persistence';
 import { useProjectionSync } from './lib/projection-sync';
 import { useLayoutStore } from './lib/store';
@@ -30,6 +31,7 @@ export function App() {
         <Sidebar />
         <EditorCanvas />
       </div>
+      <ToastHost />
     </div>
   );
 }

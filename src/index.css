@@ -22,3 +22,23 @@ button {
 ::selection {
   background: rgb(251 191 36 / 0.3);
 }
+
+@keyframes xmlDrawerIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes toastIn {
+  from {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

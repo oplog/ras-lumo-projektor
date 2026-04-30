@@ -12,11 +12,32 @@ import type { Cell, Corner } from '../../lib/types';
  */
 export function EditorCanvas() {
   const layout = useLayoutStore((s) => s.layout);
+  const currentEntryId = useLayoutStore((s) => s.currentEntryId);
   const selectedCellIndex = useLayoutStore((s) => s.selectedCellIndex);
   const selectCell = useLayoutStore((s) => s.selectCell);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const screen = layout.screen;
+
+  // Empty state: nothing loaded yet. Show a placeholder instead of the
+  // (effectively blank) canvas so the user knows where to start.
+  if (!currentEntryId && layout.cells.length === 0) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="max-w-sm text-center space-y-3">
+          <div className="text-zinc-500 text-5xl leading-none">⌗</div>
+          <div className="text-zinc-300 text-sm font-medium">
+            Henüz dosya yüklenmedi
+          </div>
+          <div className="text-zinc-500 text-[11px] leading-relaxed">
+            Toolbar'dan <span className="text-zinc-300">XML Aç</span> ile bir
+            <code className="mx-1 font-mono text-zinc-300">projector-layout-X.xml</code>
+            dosyası yükle ya da sol panelden bir istasyon aç.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const [scale, setScale] = useState(1);
   useEffect(() => {

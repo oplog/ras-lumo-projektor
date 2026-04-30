@@ -116,6 +116,7 @@ function uRangeForCell(
   col: number,
   cols: number,
   mode: 'uniform' | 'asym500',
+  gapFactor: number,
 ): { uL: number; uR: number } {
   const canAsym = mode === 'asym500' && cols >= 4 && cols % 2 === 0;
   if (!canAsym) {
@@ -125,8 +126,11 @@ function uRangeForCell(
   if (col < half) {
     return { uL: col / cols, uR: (col + 1) / cols };
   }
-  const total = cols + 0.5;
-  const rightStart = (half + 0.5) / total;
+  // gapFactor = post width relative to a single cell. 0.5 = half-cell post
+  // (the field-validated default; original asym500 behaviour). 0 = no gap;
+  // 1 = a full cell of empty space between the two rebins.
+  const total = cols + gapFactor;
+  const rightStart = (half + gapFactor) / total;
   const rightCellW = (1 - rightStart) / half;
   const j = col - half;
   return {
@@ -146,6 +150,10 @@ export interface HomographyOptions {
    *  for two-rebin layouts (e.g. FourFacePod where two adjacent rebins
    *  share one boundary with a post between them). */
   uMode?: 'uniform' | 'asym500';
+  /** Post (gap) width between the two rebins, expressed as a fraction of a
+   *  single cell's width. Only meaningful when uMode = 'asym500'.
+   *  Default 0.5 reproduces the original behaviour. */
+  gapFactor?: number;
 }
 
 /**
@@ -182,6 +190,7 @@ export function generateGridHomography(
     : boundary;
   const H = buildHomography(TL, TR, BL, BR);
   const uMode = opts?.uMode ?? 'uniform';
+  const gapFactor = opts?.gapFactor ?? 0.5;
   const cells: Cell[] = [];
 
   for (let row = 0; row < rowCount; row++) {
@@ -190,7 +199,7 @@ export function generateGridHomography(
     const vBot = (row + 1) / rowCount;
 
     for (let col = 0; col < cols; col++) {
-      const { uL, uR } = uRangeForCell(col, cols, uMode);
+      const { uL, uR } = uRangeForCell(col, cols, uMode, gapFactor);
       cells.push({
         name: defaultCellName(row, col, rowCount, cols),
         rowIndex: row,
