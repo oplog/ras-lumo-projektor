@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectorLayoutConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" StationName="askili" RowCount="4" LastModified="2025-12-22T09:34:42.2195297+03:00" Version="1.0">
+  <ScreenConfiguration DeviceName="\\.\DISPLAY2" Index="2" Width="1200" Height="1920" IsPrimary="false"/>
+  <MetadataConfiguration IsPallet="false">
+    <Face>
+      <Value>B</Value>
+      <Value>D</Value>
+    </Face>
+  </MetadataConfiguration>
+  <ColumnsPerRow>
+    <ColumnCount>1</ColumnCount>
+    <ColumnCount>1</ColumnCount>
+    <ColumnCount>1</ColumnCount>
+    <ColumnCount>1</ColumnCount>
+  </ColumnsPerRow>
+  <BoundaryCorners>
+    <Corner X="337" Y="42"/>
+    <Corner X="1083" Y="310"/>
+    <Corner X="264" Y="1393"/>
+    <Corner X="965" Y="1041"/>
+  </BoundaryCorners>
+  <Cells>
+    <Cell Name="H-1" RowIndex="0" ColumnIndex="0">
+      <TopLeft X="337" Y="42"/>
+      <TopRight X="1083" Y="310"/>
+      <BottomLeft X="321" Y="249"/>
+      <BottomRight X="1076" Y="407"/>
+    </Cell>
+    <Cell Name="G-1" RowIndex="1" ColumnIndex="0">
+      <TopLeft X="318" Y="249"/>
+      <TopRight X="1074" Y="408"/>
+      <BottomLeft X="321" Y="436"/>
+      <BottomRight X="1059" Y="530"/>
+    </Cell>
+    <Cell Name="F-1" RowIndex="2" ColumnIndex="0">
+      <TopLeft X="323" Y="440"/>
+      <TopRight X="1055" Y="536"/>
+      <BottomLeft X="316" Y="705"/>
+      <BottomRight X="1043" Y="655"/>
+    </Cell>
+    <Cell Name="A-1" RowIndex="3" ColumnIndex="0">
+      <TopLeft X="312" Y="703"/>
+      <TopRight X="1043" Y="655"/>
+      <BottomLeft X="264" Y="1393"/>
+      <BottomRight X="965" Y="1041"/>
+    </Cell>
+  </Cells>
+</ProjectorLayoutConfiguration>

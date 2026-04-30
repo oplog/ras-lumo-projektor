@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectorLayoutConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" StationName="3" RowCount="14" LastModified="2025-12-22T09:19:59.9489709+03:00" Version="1.0">
+  <ScreenConfiguration DeviceName="\\.\DISPLAY2" Index="2" Width="1200" Height="1920" IsPrimary="false"/>
+  <MetadataConfiguration IsPallet="false">
+    <Face>
+      <Value>A</Value>
+      <Value>C</Value>
+    </Face>
+  </MetadataConfiguration>
+  <ColumnsPerRow>
+    <ColumnCount>2</ColumnCount>
+    <ColumnCount>2</ColumnCount>
+    <ColumnCount>2</ColumnCount>
+    <ColumnCount>2</ColumnCount>
+    <ColumnCount>2</ColumnCount>
+    <ColumnCount>2</ColumnCount>
+    <ColumnCount>2</ColumnCount>
+    <ColumnCount>2</ColumnCount>
+    <ColumnCount>4</ColumnCount>
+    <ColumnCount>4</ColumnCount>
+    <ColumnCount>4</ColumnCount>
+    <ColumnCount>4</ColumnCount>
+    <ColumnCount>1</ColumnCount>
+    <ColumnCount>1</ColumnCount>
+  </ColumnsPerRow>
+  <BoundaryCorners>
+    <Corner X="238" Y="9"/>
+    <Corner X="1059" Y="294"/>
+    <Corner X="239" Y="1410"/>
+    <Corner X="957" Y="1036"/>
+  </BoundaryCorners>
+  <Cells>
+    <Cell Name="P-1" RowIndex="0" ColumnIndex="0">
+      <TopLeft X="238" Y="9"/>
+      <TopRight X="813" Y="211"/>
+      <BottomLeft X="239" Y="125"/>
+      <BottomRight X="800" Y="278"/>
+    </Cell>
+    <Cell Name="P-2" RowIndex="0" ColumnIndex="1">
+      <TopLeft X="816" Y="210"/>
+      <TopRight X="1059" Y="294"/>
+      <BottomLeft X="805" Y="275"/>
+      <BottomRight X="1051.7142857142858" Y="347"/>
+    </Cell>
+    <Cell Name="O-1" RowIndex="1" ColumnIndex="0">
+      <TopLeft X="239" Y="125"/>
+      <TopRight X="805" Y="278"/>
+      <BottomLeft X="237" Y="227"/>
+      <BottomRight X="793" Y="337"/>
+    </Cell>
+    <Cell Name="O-2" RowIndex="1" ColumnIndex="1">
+      <TopLeft X="800" Y="277"/>
+      <TopRight X="1051.7142857142858" Y="347"/>
+      <BottomLeft X="793" Y="346"/>
+      <BottomRight X="1044.4285714285716" Y="400"/>
+    </Cell>
+    <Cell Name="N-1" RowIndex="2" ColumnIndex="0">
+      <TopLeft X="239" Y="225"/>
+      <TopRight X="791" Y="340"/>
+      <BottomLeft X="236" Y="332"/>
+      <BottomRight X="780" Y="414"/>
+    </Cell>
+    <Cell Name="N-2" RowIndex="2" ColumnIndex="1">
+      <TopLeft X="791" Y="343"/>
+      <TopRight X="1044.4285714285716" Y="400"/>
+      <BottomLeft X="783" Y="413"/>
+      <BottomRight X="1037.142857142857" Y="453"/>
+    </Cell>
+    <Cell Name="M-1" RowIndex="3" ColumnIndex="0">
+      <TopLeft X="236" Y="333"/>
+      <TopRight X="782" Y="413"/>
+      <BottomLeft X="242" Y="433"/>
+      <BottomRight X="776" Y="481"/>
+    </Cell>
+    <Cell Name="M-2" RowIndex="3" ColumnIndex="1">
+      <TopLeft X="779" Y="413"/>
+      <TopRight X="1037.142857142857" Y="453"/>
+      <BottomLeft X="771" Y="475"/>
+      <BottomRight X="1029.857142857143" Y="506"/>
+    </Cell>
+    <Cell Name="L-1" RowIndex="4" ColumnIndex="0">
+      <TopLeft X="239" Y="431"/>
+      <TopRight X="771" Y="480"/>
+      <BottomLeft X="237" Y="529"/>
+      <BottomRight X="763" Y="540"/>
+    </Cell>
+    <Cell Name="L-2" RowIndex="4" ColumnIndex="1">
+      <TopLeft X="770" Y="480"/>
+      <TopRight X="1029.857142857143" Y="506"/>
+      <BottomLeft X="762" Y="539"/>
+      <BottomRight X="1022.5714285714284" Y="559"/>
+    </Cell>
+    <Cell Name="K-1" RowIndex="5" ColumnIndex="0">
+      <TopLeft X="239" Y="530"/>
+      <TopRight X="768" Y="543"/>
+      <BottomLeft X="238.42857142857142" Y="609.4285714285713"/>
+      <BottomRight X="757" Y="608"/>
+    </Cell>
+    <Cell Name="K-2" RowIndex="5" ColumnIndex="1">
+      <TopLeft X="765" Y="541"/>
+      <TopRight X="1022.5714285714284" Y="559"/>
+      <BottomLeft X="753" Y="604"/>
+      <BottomRight X="1015.2857142857142" Y="612"/>
+    </Cell>
+    <Cell Name="J-1" RowIndex="6" ColumnIndex="0">
+      <TopLeft X="238.42857142857142" Y="609.4285714285713"/>
+      <TopRight X="751" Y="607"/>
+      <BottomLeft X="238.5" Y="709.5"/>
+      <BottomRight X="743" Y="677"/>
+    </Cell>
+    <Cell Name="J-2" RowIndex="6" ColumnIndex="1">
+      <TopLeft X="753" Y="607"/>
+      <TopRight X="1015.2857142857142" Y="612"/>
+      <BottomLeft X="747" Y="677"/>
+      <BottomRight X="1008" Y="665"/>
+    </Cell>
+    <Cell Name="I-1" RowIndex="7" ColumnIndex="0">
+      <TopLeft X="238.5" Y="709.5"/>
+      <TopRight X="746" Y="680"/>
+      <BottomLeft X="236" Y="801"/>
+      <BottomRight X="737" Y="727"/>
+    </Cell>
+    <Cell Name="I-2" RowIndex="7" ColumnIndex="1">
+      <TopLeft X="743" Y="680"/>
+      <TopRight X="1008" Y="665"/>
+      <BottomLeft X="744" Y="728"/>
+      <BottomRight X="1000" Y="693"/>
+    </Cell>
+    <Cell Name="H-1" RowIndex="8" ColumnIndex="0">
+      <TopLeft X="238.57142857142856" Y="809.5714285714286"/>
+      <TopRight X="548" Y="760"/>
+      <BottomLeft X="241" Y="872"/>
+      <BottomRight X="531" Y="822"/>
+    </Cell>
+    <Cell Name="H-2" RowIndex="8" ColumnIndex="1">
+      <TopLeft X="552" Y="760"/>
+      <TopRight X="738" Y="730"/>
+      <BottomLeft X="538" Y="818"/>
+      <BottomRight X="737" Y="784"/>
+    </Cell>
+    <Cell Name="H-3" RowIndex="8" ColumnIndex="2">
+      <TopLeft X="749" Y="728"/>
+      <TopRight X="900" Y="707"/>
+      <BottomLeft X="747" Y="784"/>
+      <BottomRight X="891" Y="755"/>
+    </Cell>
+    <Cell Name="H-4" RowIndex="8" ColumnIndex="3">
+      <TopLeft X="904" Y="705"/>
+      <TopRight X="1000" Y="692"/>
+      <BottomLeft X="894" Y="749"/>
+      <BottomRight X="995" Y="739"/>
+    </Cell>
+    <Cell Name="G-1" RowIndex="9" ColumnIndex="0">
+      <TopLeft X="242" Y="878"/>
+      <TopRight X="536" Y="825"/>
+      <BottomLeft X="239" Y="962"/>
+      <BottomRight X="527" Y="896"/>
+    </Cell>
+    <Cell Name="G-2" RowIndex="9" ColumnIndex="1">
+      <TopLeft X="539" Y="822"/>
+      <TopRight X="735" Y="789"/>
+      <BottomLeft X="535" Y="887"/>
+      <BottomRight X="729" Y="845"/>
+    </Cell>
+    <Cell Name="G-3" RowIndex="9" ColumnIndex="2">
+      <TopLeft X="746" Y="788"/>
+      <TopRight X="893" Y="760"/>
+      <BottomLeft X="732" Y="849"/>
+      <BottomRight X="882" Y="809"/>
+    </Cell>
+    <Cell Name="G-4" RowIndex="9" ColumnIndex="3">
+      <TopLeft X="897" Y="758"/>
+      <TopRight X="996" Y="742"/>
+      <BottomLeft X="886" Y="808"/>
+      <BottomRight X="992" Y="786"/>
+    </Cell>
+    <Cell Name="F-1" RowIndex="10" ColumnIndex="0">
+      <TopLeft X="244" Y="964"/>
+      <TopRight X="531" Y="899"/>
+      <BottomLeft X="242" Y="1040"/>
+      <BottomRight X="523" Y="958"/>
+    </Cell>
+    <Cell Name="F-2" RowIndex="10" ColumnIndex="1">
+      <TopLeft X="531" Y="895"/>
+      <TopRight X="730" Y="844"/>
+      <BottomLeft X="529" Y="960"/>
+      <BottomRight X="727" Y="901"/>
+    </Cell>
+    <Cell Name="F-3" RowIndex="10" ColumnIndex="2">
+      <TopLeft X="737" Y="848"/>
+      <TopRight X="882" Y="810"/>
+      <BottomLeft X="729" Y="899"/>
+      <BottomRight X="877" Y="859"/>
+    </Cell>
+    <Cell Name="F-4" RowIndex="10" ColumnIndex="3">
+      <TopLeft X="891" Y="812"/>
+      <TopRight X="989" Y="783"/>
+      <BottomLeft X="880" Y="857"/>
+      <BottomRight X="983" Y="823"/>
+    </Cell>
+    <Cell Name="E-1" RowIndex="11" ColumnIndex="0">
+      <TopLeft X="243" Y="1047"/>
+      <TopRight X="523" Y="962"/>
+      <BottomLeft X="242" Y="1108"/>
+      <BottomRight X="524" Y="1022"/>
+    </Cell>
+    <Cell Name="E-2" RowIndex="11" ColumnIndex="1">
+      <TopLeft X="531" Y="964"/>
+      <TopRight X="725" Y="906"/>
+      <BottomLeft X="527" Y="1022"/>
+      <BottomRight X="723" Y="954"/>
+    </Cell>
+    <Cell Name="E-3" RowIndex="11" ColumnIndex="2">
+      <TopLeft X="731" Y="902"/>
+      <TopRight X="877" Y="859"/>
+      <BottomLeft X="724" Y="954"/>
+      <BottomRight X="876" Y="905"/>
+    </Cell>
+    <Cell Name="E-4" RowIndex="11" ColumnIndex="3">
+      <TopLeft X="886" Y="863"/>
+      <TopRight X="984" Y="829"/>
+      <BottomLeft X="877" Y="909"/>
+      <BottomRight X="981" Y="867"/>
+    </Cell>
+    <Cell Name="B-1" RowIndex="12" ColumnIndex="0">
+      <TopLeft X="238" Y="1115"/>
+      <TopRight X="981" Y="873"/>
+      <BottomLeft X="243" Y="1252"/>
+      <BottomRight X="970" Y="950"/>
+    </Cell>
+    <Cell Name="A-1" RowIndex="13" ColumnIndex="0">
+      <TopLeft X="237" Y="1253"/>
+      <TopRight X="966" Y="958"/>
+      <BottomLeft X="239" Y="1410"/>
+      <BottomRight X="957" Y="1036"/>
+    </Cell>
+  </Cells>
+</ProjectorLayoutConfiguration>

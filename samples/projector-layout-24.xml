@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectorLayoutConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" StationName="24" RowCount="8" LastModified="2025-12-22T09:44:52.6223363+03:00" Version="1.0">
+  <ScreenConfiguration DeviceName="\\.\DISPLAY2" Index="2" Width="1200" Height="1920" IsPrimary="false"/>
+  <MetadataConfiguration IsPallet="false">
+    <Face>
+      <Value>B</Value>
+      <Value>D</Value>
+    </Face>
+  </MetadataConfiguration>
+  <ColumnsPerRow>
+    <ColumnCount>1</ColumnCount>
+    <ColumnCount>1</ColumnCount>
+    <ColumnCount>1</ColumnCount>
+    <ColumnCount>1</ColumnCount>
+    <ColumnCount>1</ColumnCount>
+    <ColumnCount>1</ColumnCount>
+    <ColumnCount>1</ColumnCount>
+    <ColumnCount>1</ColumnCount>
+  </ColumnsPerRow>
+  <BoundaryCorners>
+    <Corner X="317" Y="25"/>
+    <Corner X="1079" Y="298"/>
+    <Corner X="247" Y="1396"/>
+    <Corner X="957" Y="1020"/>
+  </BoundaryCorners>
+  <Cells>
+    <Cell Name="H-1" RowIndex="0" ColumnIndex="0">
+      <TopLeft X="317" Y="25"/>
+      <TopRight X="1079" Y="298"/>
+      <BottomLeft X="651" Y="315"/>
+      <BottomRight X="944" Y="377"/>
+    </Cell>
+    <Cell Name="G-1" RowIndex="1" ColumnIndex="0">
+      <TopLeft X="650" Y="317"/>
+      <TopRight X="943" Y="376"/>
+      <BottomLeft X="635" Y="472"/>
+      <BottomRight X="927" Y="489"/>
+    </Cell>
+    <Cell Name="F-1" RowIndex="2" ColumnIndex="0">
+      <TopLeft X="632" Y="467"/>
+      <TopRight X="927" Y="495"/>
+      <BottomLeft X="611" Y="613"/>
+      <BottomRight X="905" Y="599"/>
+    </Cell>
+    <Cell Name="E-1" RowIndex="3" ColumnIndex="0">
+      <TopLeft X="617" Y="615"/>
+      <TopRight X="906" Y="602"/>
+      <BottomLeft X="596" Y="750"/>
+      <BottomRight X="887" Y="709"/>
+    </Cell>
+    <Cell Name="D-1" RowIndex="4" ColumnIndex="0">
+      <TopLeft X="600" Y="747"/>
+      <TopRight X="892" Y="705"/>
+      <BottomLeft X="573" Y="876"/>
+      <BottomRight X="871" Y="811"/>
+    </Cell>
+    <Cell Name="C-1" RowIndex="5" ColumnIndex="0">
+      <TopLeft X="576" Y="881"/>
+      <TopRight X="872" Y="805"/>
+      <BottomLeft X="572" Y="1007"/>
+      <BottomRight X="867" Y="907"/>
+    </Cell>
+    <Cell Name="B-1" RowIndex="6" ColumnIndex="0">
+      <TopLeft X="258" Y="1109"/>
+      <TopRight X="990" Y="865"/>
+      <BottomLeft X="256" Y="1255"/>
+      <BottomRight X="978" Y="954"/>
+    </Cell>
+    <Cell Name="A-1" RowIndex="7" ColumnIndex="0">
+      <TopLeft X="260" Y="1247"/>
+      <TopRight X="976" Y="957"/>
+      <BottomLeft X="247" Y="1396"/>
+      <BottomRight X="957" Y="1020"/>
+    </Cell>
+  </Cells>
+</ProjectorLayoutConfiguration>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectorLayoutConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" StationName="lumo-test" RowCount="3" LastModified="2026-04-25T23:30:00.0000000+03:00" Version="1.0">
+  <ScreenConfiguration DeviceName="\\.\DISPLAY2" Index="3" Width="1280" Height="800" IsPrimary="false"/>
+  <MetadataConfiguration SurfaceType="PutToLight" Surface="PutToLight">
+    <Face/>
+  </MetadataConfiguration>
+  <ColumnsPerRow>
+    <ColumnCount>3</ColumnCount>
+    <ColumnCount>3</ColumnCount>
+    <ColumnCount>3</ColumnCount>
+  </ColumnsPerRow>
+  <BoundaryCorners>
+    <Corner X="150" Y="100"/>
+    <Corner X="1110" Y="100"/>
+    <Corner X="150" Y="700"/>
+    <Corner X="1110" Y="700"/>
+  </BoundaryCorners>
+  <Cells>
+    <Cell Name="C-1" RowIndex="0" ColumnIndex="0">
+      <TopLeft X="150" Y="100"/>
+      <TopRight X="470" Y="100"/>
+      <BottomLeft X="150" Y="300"/>
+      <BottomRight X="470" Y="300"/>
+    </Cell>
+    <Cell Name="C-2" RowIndex="0" ColumnIndex="1">
+      <TopLeft X="470" Y="100"/>
+      <TopRight X="790" Y="100"/>
+      <BottomLeft X="470" Y="300"/>
+      <BottomRight X="790" Y="300"/>
+    </Cell>
+    <Cell Name="C-3" RowIndex="0" ColumnIndex="2">
+      <TopLeft X="790" Y="100"/>
+      <TopRight X="1110" Y="100"/>
+      <BottomLeft X="790" Y="300"/>
+      <BottomRight X="1110" Y="300"/>
+    </Cell>
+    <Cell Name="B-1" RowIndex="1" ColumnIndex="0">
+      <TopLeft X="150" Y="300"/>
+      <TopRight X="470" Y="300"/>
+      <BottomLeft X="150" Y="500"/>
+      <BottomRight X="470" Y="500"/>
+    </Cell>
+    <Cell Name="B-2" RowIndex="1" ColumnIndex="1">
+      <TopLeft X="470" Y="300"/>
+      <TopRight X="790" Y="300"/>
+      <BottomLeft X="470" Y="500"/>
+      <BottomRight X="790" Y="500"/>
+    </Cell>
+    <Cell Name="B-3" RowIndex="1" ColumnIndex="2">
+      <TopLeft X="790" Y="300"/>
+      <TopRight X="1110" Y="300"/>
+      <BottomLeft X="790" Y="500"/>
+      <BottomRight X="1110" Y="500"/>
+    </Cell>
+    <Cell Name="A-1" RowIndex="2" ColumnIndex="0">
+      <TopLeft X="150" Y="500"/>
+      <TopRight X="470" Y="500"/>
+      <BottomLeft X="150" Y="700"/>
+      <BottomRight X="470" Y="700"/>
+    </Cell>
+    <Cell Name="A-2" RowIndex="2" ColumnIndex="1">
+      <TopLeft X="470" Y="500"/>
+      <TopRight X="790" Y="500"/>
+      <BottomLeft X="470" Y="700"/>
+      <BottomRight X="790" Y="700"/>
+    </Cell>
+    <Cell Name="A-3" RowIndex="2" ColumnIndex="2">
+      <TopLeft X="790" Y="500"/>
+      <TopRight X="1110" Y="500"/>
+      <BottomLeft X="790" Y="700"/>
+      <BottomRight X="1110" Y="700"/>
+    </Cell>
+  </Cells>
+</ProjectorLayoutConfiguration>

@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectorLayoutConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" StationName="Put" RowCount="4" LastModified="2026-01-15T10:58:29.7228416+03:00" Version="1.0">
+  <ScreenConfiguration DeviceName="\\.\DISPLAY2" Index="3" Width="1280" Height="800" IsPrimary="false"/>
+  <MetadataConfiguration SurfaceType="PutToLight" Surface="PutToLight">
+    <Face/>
+  </MetadataConfiguration>
+  <ColumnsPerRow>
+    <ColumnCount>10</ColumnCount>
+    <ColumnCount>10</ColumnCount>
+    <ColumnCount>10</ColumnCount>
+    <ColumnCount>10</ColumnCount>
+  </ColumnsPerRow>
+  <BoundaryCorners>
+    <Corner X="321" Y="110"/>
+    <Corner X="1147" Y="71"/>
+    <Corner X="286" Y="624"/>
+    <Corner X="1256" Y="584"/>
+  </BoundaryCorners>
+  <Cells>
+    <Cell Name="T3-M-SEPET-01" RowIndex="0" ColumnIndex="0">
+      <TopLeft X="321" Y="110"/>
+      <TopRight X="403.6" Y="106.1"/>
+      <BottomLeft X="312.25" Y="238.5"/>
+      <BottomRight X="398.45000000000005" Y="234.57500000000002"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-02" RowIndex="0" ColumnIndex="1">
+      <TopLeft X="403.6" Y="106.1"/>
+      <TopRight X="486.20000000000005" Y="102.2"/>
+      <BottomLeft X="398.45000000000005" Y="234.57500000000002"/>
+      <BottomRight X="484.65000000000003" Y="230.65000000000003"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-03" RowIndex="0" ColumnIndex="2">
+      <TopLeft X="486.20000000000005" Y="102.2"/>
+      <TopRight X="568.8" Y="98.3"/>
+      <BottomLeft X="484.65000000000003" Y="230.65000000000003"/>
+      <BottomRight X="570.85" Y="226.72499999999997"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-04" RowIndex="0" ColumnIndex="3">
+      <TopLeft X="568.8" Y="98.3"/>
+      <TopRight X="651.4" Y="94.4"/>
+      <BottomLeft X="570.85" Y="226.72499999999997"/>
+      <BottomRight X="657.0500000000001" Y="222.79999999999998"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-05" RowIndex="0" ColumnIndex="4">
+      <TopLeft X="651.4" Y="94.4"/>
+      <TopRight X="734" Y="90.5"/>
+      <BottomLeft X="657.0500000000001" Y="222.79999999999998"/>
+      <BottomRight X="743.25" Y="218.875"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-01" RowIndex="0" ColumnIndex="5">
+      <TopLeft X="734" Y="90.5"/>
+      <TopRight X="816.5999999999999" Y="86.6"/>
+      <BottomLeft X="743.25" Y="218.875"/>
+      <BottomRight X="829.45" Y="214.95"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-02" RowIndex="0" ColumnIndex="6">
+      <TopLeft X="816.5999999999999" Y="86.6"/>
+      <TopRight X="899.2" Y="82.7"/>
+      <BottomLeft X="829.45" Y="214.95"/>
+      <BottomRight X="915.65" Y="211.02499999999998"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-03" RowIndex="0" ColumnIndex="7">
+      <TopLeft X="899.2" Y="82.7"/>
+      <TopRight X="981.8" Y="78.8"/>
+      <BottomLeft X="915.65" Y="211.02499999999998"/>
+      <BottomRight X="1001.85" Y="207.10000000000002"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-04" RowIndex="0" ColumnIndex="8">
+      <TopLeft X="981.8" Y="78.8"/>
+      <TopRight X="1064.3999999999999" Y="74.89999999999999"/>
+      <BottomLeft X="1001.85" Y="207.10000000000002"/>
+      <BottomRight X="1088.0500000000002" Y="203.175"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-05" RowIndex="0" ColumnIndex="9">
+      <TopLeft X="1064.3999999999999" Y="74.89999999999999"/>
+      <TopRight X="1147" Y="71"/>
+      <BottomLeft X="1088.0500000000002" Y="203.175"/>
+      <BottomRight X="1174.25" Y="199.25"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-06" RowIndex="1" ColumnIndex="0">
+      <TopLeft X="312.25" Y="238.5"/>
+      <TopRight X="398.45000000000005" Y="234.57500000000002"/>
+      <BottomLeft X="303.5" Y="367"/>
+      <BottomRight X="393.3" Y="363.05"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-07" RowIndex="1" ColumnIndex="1">
+      <TopLeft X="398.45000000000005" Y="234.57500000000002"/>
+      <TopRight X="484.65000000000003" Y="230.65000000000003"/>
+      <BottomLeft X="393.3" Y="363.05"/>
+      <BottomRight X="483.1" Y="359.1"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-08" RowIndex="1" ColumnIndex="2">
+      <TopLeft X="484.65000000000003" Y="230.65000000000003"/>
+      <TopRight X="570.85" Y="226.72499999999997"/>
+      <BottomLeft X="483.1" Y="359.1"/>
+      <BottomRight X="572.9" Y="355.15"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-09" RowIndex="1" ColumnIndex="3">
+      <TopLeft X="570.85" Y="226.72499999999997"/>
+      <TopRight X="657.0500000000001" Y="222.79999999999998"/>
+      <BottomLeft X="572.9" Y="355.15"/>
+      <BottomRight X="662.7" Y="351.2"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-10" RowIndex="1" ColumnIndex="4">
+      <TopLeft X="657.0500000000001" Y="222.79999999999998"/>
+      <TopRight X="743.25" Y="218.875"/>
+      <BottomLeft X="662.7" Y="351.2"/>
+      <BottomRight X="752.5" Y="347.25"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-06" RowIndex="1" ColumnIndex="5">
+      <TopLeft X="743.25" Y="218.875"/>
+      <TopRight X="829.45" Y="214.95"/>
+      <BottomLeft X="752.5" Y="347.25"/>
+      <BottomRight X="842.3" Y="343.3"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-07" RowIndex="1" ColumnIndex="6">
+      <TopLeft X="829.45" Y="214.95"/>
+      <TopRight X="915.65" Y="211.02499999999998"/>
+      <BottomLeft X="842.3" Y="343.3"/>
+      <BottomRight X="932.0999999999999" Y="339.35"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-08" RowIndex="1" ColumnIndex="7">
+      <TopLeft X="915.65" Y="211.02499999999998"/>
+      <TopRight X="1001.85" Y="207.10000000000002"/>
+      <BottomLeft X="932.0999999999999" Y="339.35"/>
+      <BottomRight X="1021.9000000000001" Y="335.4"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-09" RowIndex="1" ColumnIndex="8">
+      <TopLeft X="1001.85" Y="207.10000000000002"/>
+      <TopRight X="1088.0500000000002" Y="203.175"/>
+      <BottomLeft X="1021.9000000000001" Y="335.4"/>
+      <BottomRight X="1111.6999999999998" Y="331.45"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-10" RowIndex="1" ColumnIndex="9">
+      <TopLeft X="1088.0500000000002" Y="203.175"/>
+      <TopRight X="1174.25" Y="199.25"/>
+      <BottomLeft X="1111.6999999999998" Y="331.45"/>
+      <BottomRight X="1201.5" Y="327.5"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-11" RowIndex="2" ColumnIndex="0">
+      <TopLeft X="303.5" Y="367"/>
+      <TopRight X="393.3" Y="363.05"/>
+      <BottomLeft X="294.75" Y="495.5"/>
+      <BottomRight X="388.1500000000001" Y="491.52500000000003"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-12" RowIndex="2" ColumnIndex="1">
+      <TopLeft X="393.3" Y="363.05"/>
+      <TopRight X="483.1" Y="359.1"/>
+      <BottomLeft X="388.1500000000001" Y="491.52500000000003"/>
+      <BottomRight X="481.55000000000007" Y="487.55000000000007"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-13" RowIndex="2" ColumnIndex="2">
+      <TopLeft X="483.1" Y="359.1"/>
+      <TopRight X="572.9" Y="355.15"/>
+      <BottomLeft X="481.55000000000007" Y="487.55000000000007"/>
+      <BottomRight X="574.9499999999999" Y="483.57499999999993"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-14" RowIndex="2" ColumnIndex="3">
+      <TopLeft X="572.9" Y="355.15"/>
+      <TopRight X="662.7" Y="351.2"/>
+      <BottomLeft X="574.9499999999999" Y="483.57499999999993"/>
+      <BottomRight X="668.35" Y="479.6"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-15" RowIndex="2" ColumnIndex="4">
+      <TopLeft X="662.7" Y="351.2"/>
+      <TopRight X="752.5" Y="347.25"/>
+      <BottomLeft X="668.35" Y="479.6"/>
+      <BottomRight X="761.75" Y="475.625"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-11" RowIndex="2" ColumnIndex="5">
+      <TopLeft X="752.5" Y="347.25"/>
+      <TopRight X="842.3" Y="343.3"/>
+      <BottomLeft X="761.75" Y="475.625"/>
+      <BottomRight X="855.1499999999999" Y="471.65"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-12" RowIndex="2" ColumnIndex="6">
+      <TopLeft X="842.3" Y="343.3"/>
+      <TopRight X="932.0999999999999" Y="339.35"/>
+      <BottomLeft X="855.1499999999999" Y="471.65"/>
+      <BottomRight X="948.55" Y="467.675"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-13" RowIndex="2" ColumnIndex="7">
+      <TopLeft X="932.0999999999999" Y="339.35"/>
+      <TopRight X="1021.9000000000001" Y="335.4"/>
+      <BottomLeft X="948.55" Y="467.675"/>
+      <BottomRight X="1041.95" Y="463.70000000000005"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-14" RowIndex="2" ColumnIndex="8">
+      <TopLeft X="1021.9000000000001" Y="335.4"/>
+      <TopRight X="1111.6999999999998" Y="331.45"/>
+      <BottomLeft X="1041.95" Y="463.70000000000005"/>
+      <BottomRight X="1135.35" Y="459.725"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-15" RowIndex="2" ColumnIndex="9">
+      <TopLeft X="1111.6999999999998" Y="331.45"/>
+      <TopRight X="1201.5" Y="327.5"/>
+      <BottomLeft X="1135.35" Y="459.725"/>
+      <BottomRight X="1228.75" Y="455.75"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-16" RowIndex="3" ColumnIndex="0">
+      <TopLeft X="294.75" Y="495.5"/>
+      <TopRight X="388.1500000000001" Y="491.52500000000003"/>
+      <BottomLeft X="286" Y="624"/>
+      <BottomRight X="383.00000000000006" Y="620"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-17" RowIndex="3" ColumnIndex="1">
+      <TopLeft X="388.1500000000001" Y="491.52500000000003"/>
+      <TopRight X="481.55000000000007" Y="487.55000000000007"/>
+      <BottomLeft X="383.00000000000006" Y="620"/>
+      <BottomRight X="480" Y="616"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-18" RowIndex="3" ColumnIndex="2">
+      <TopLeft X="481.55000000000007" Y="487.55000000000007"/>
+      <TopRight X="574.9499999999999" Y="483.57499999999993"/>
+      <BottomLeft X="480" Y="616"/>
+      <BottomRight X="577" Y="612"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-19" RowIndex="3" ColumnIndex="3">
+      <TopLeft X="574.9499999999999" Y="483.57499999999993"/>
+      <TopRight X="668.35" Y="479.6"/>
+      <BottomLeft X="577" Y="612"/>
+      <BottomRight X="674" Y="608"/>
+    </Cell>
+    <Cell Name="T3-M-SEPET-20" RowIndex="3" ColumnIndex="4">
+      <TopLeft X="668.35" Y="479.6"/>
+      <TopRight X="761.75" Y="475.625"/>
+      <BottomLeft X="674" Y="608"/>
+      <BottomRight X="771" Y="604"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-16" RowIndex="3" ColumnIndex="5">
+      <TopLeft X="761.75" Y="475.625"/>
+      <TopRight X="855.1499999999999" Y="471.65"/>
+      <BottomLeft X="771" Y="604"/>
+      <BottomRight X="868" Y="600"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-17" RowIndex="3" ColumnIndex="6">
+      <TopLeft X="855.1499999999999" Y="471.65"/>
+      <TopRight X="948.55" Y="467.675"/>
+      <BottomLeft X="868" Y="600"/>
+      <BottomRight X="965" Y="596"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-18" RowIndex="3" ColumnIndex="7">
+      <TopLeft X="948.55" Y="467.675"/>
+      <TopRight X="1041.95" Y="463.70000000000005"/>
+      <BottomLeft X="965" Y="596"/>
+      <BottomRight X="1062" Y="592"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-19" RowIndex="3" ColumnIndex="8">
+      <TopLeft X="1041.95" Y="463.70000000000005"/>
+      <TopRight X="1135.35" Y="459.725"/>
+      <BottomLeft X="965" Y="596"/>
+      <BottomRight X="1159" Y="588"/>
+    </Cell>
+    <Cell Name="T4-M-SEPET-20" RowIndex="3" ColumnIndex="9">
+      <TopLeft X="1135.35" Y="459.725"/>
+      <TopRight X="1228.75" Y="455.75"/>
+      <BottomLeft X="1159" Y="588"/>
+      <BottomRight X="1256" Y="584"/>
+    </Cell>
+  </Cells>
+</ProjectorLayoutConfiguration>
