@@ -32,11 +32,13 @@ export function ScreenSection() {
           <input
             type="number"
             min="1"
-            max="9"
+            max="99"
             value={n}
             onFocus={(e) => e.currentTarget.select()}
             onChange={(e) => {
-              const next = Math.max(1, Math.min(9, Number(e.target.value) || 1));
+              const raw = Number(e.target.value);
+              const next =
+                Number.isFinite(raw) && raw >= 1 ? Math.min(99, Math.floor(raw)) : 1;
               update({ deviceName: `${prefix}${next}` });
             }}
             className="flex-1 bg-zinc-950/80 px-2.5 py-1.5 text-sm text-zinc-100 font-mono focus:outline-none"

@@ -282,9 +282,16 @@ export function saveFile(opts: {
 }
 
 export function deleteEntry(id: string): void {
-  const before = cache.entries.length;
+  const target = cache.entries.find((e) => e.id === id);
+  if (!target) return;
   cache.entries = cache.entries.filter((e) => e.id !== id);
-  if (cache.entries.length === before) return;
+  // Preserve the (now empty) group so the user's station doesn't disappear
+  // when the last file under it is removed. They created the group; we keep
+  // it around as an empty placeholder until they explicitly delete it.
+  const stillHasFiles = cache.entries.some((e) => e.group === target.group);
+  if (!stillHasFiles && !cache.emptyGroups.includes(target.group)) {
+    cache.emptyGroups = [...cache.emptyGroups, target.group];
+  }
   notifySubscribers();
   void persist();
 }
@@ -296,14 +303,27 @@ export function updateEntry(
   const idx = cache.entries.findIndex((e) => e.id === id);
   if (idx === -1) return;
   const cur = cache.entries[idx];
+  const newGroup = patch.group?.trim() || cur.group;
   const next: LibraryEntry = {
     ...cur,
-    group: patch.group?.trim() || cur.group,
+    group: newGroup,
     fileName: patch.fileName?.trim() || cur.fileName,
     xml: patch.xml ?? cur.xml,
     savedAt: patch.xml !== undefined ? Date.now() : cur.savedAt,
   };
   cache.entries = [...cache.entries.slice(0, idx), next, ...cache.entries.slice(idx + 1)];
+  // Moving the file's group? The old group might now be empty — keep it
+  // visible as an empty placeholder so the user doesn't lose the bucket.
+  if (newGroup !== cur.group) {
+    const oldStillHasFiles = cache.entries.some((e) => e.group === cur.group);
+    if (!oldStillHasFiles && !cache.emptyGroups.includes(cur.group)) {
+      cache.emptyGroups = [...cache.emptyGroups, cur.group];
+    }
+    // The new group is no longer empty.
+    if (cache.emptyGroups.includes(newGroup)) {
+      cache.emptyGroups = cache.emptyGroups.filter((n) => n !== newGroup);
+    }
+  }
   notifySubscribers();
   void persist();
 }

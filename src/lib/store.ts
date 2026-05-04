@@ -4,7 +4,11 @@ import { useStore } from 'zustand';
 import { create } from 'zustand';
 import { generateGrid } from './bilinear';
 import { makeEmptyLayout } from './defaults';
-import { canonicalizeCorners, generateGridHomography } from './homography';
+import {
+  canonicalizeCorners,
+  generateGridHomography,
+  inferColumnDirection,
+} from './homography';
 import { defaultSurfaceLabel } from './types';
 import type {
   Cell,
@@ -30,6 +34,14 @@ interface LayoutState {
   /** Post (gap) width between two rebins, as fraction of one cell width.
    *  Only used in rebin mode (asym500). 0.5 = field-validated default. */
   rebinGapFactor: number;
+  /** Visual inset applied to each cell (0..0.5), shrinking it toward its
+   *  centre. Used to tighten/loosen the apparent gaps between projected
+   *  cells without re-running RAS. */
+  cellInset: number;
+  /** Pixel offset applied to the whole grid after homography. Lets the
+   *  user nudge cells if the projector is misaligned with the physical bins. */
+  gridOffsetX: number;
+  gridOffsetY: number;
   /** Library entry id of the file currently loaded in the editor.
    *  All in-place edits (Auto Fix, gap slider, cell rename) write back
    *  to this row. Null when nothing is loaded. */
@@ -41,6 +53,8 @@ interface LayoutState {
   setLiveRegenerate: (v: boolean) => void;
   setGeometryMode: (m: 'pod' | 'rebin') => void;
   setRebinGapFactor: (f: number) => void;
+  setCellInset: (v: number) => void;
+  setGridOffset: (axis: 'x' | 'y', v: number) => void;
   setCurrentEntryId: (id: string | null) => void;
 
   setStationName: (s: string) => void;
@@ -92,6 +106,43 @@ function clampToScreen(c: Corner, screen: ScreenConfig): Corner {
   };
 }
 
+/**
+ * Re-run homography cell generation using current store state, with
+ * optional overrides. Centralizes the pattern used by gap/inset/offset
+ * sliders so each callsite doesn't reimplement direction detection,
+ * canonicalization, and option threading.
+ */
+function regenCells(
+  s: LayoutState,
+  overrides: {
+    gapFactor?: number;
+    cellInset?: number;
+    offsetX?: number;
+    offsetY?: number;
+  } = {},
+): Cell[] {
+  const isRebin = s.geometryMode === 'rebin';
+  const corners = s.layout.boundaryCorners;
+  const ordered = isRebin
+    ? canonicalizeCorners([corners[0], corners[1], corners[2], corners[3]])
+    : corners;
+  const columnDirection = inferColumnDirection(s.layout.cells);
+  return generateGridHomography(
+    ordered,
+    s.layout.rowCount,
+    s.layout.columnsPerRow,
+    {
+      canonicalize: false,
+      uMode: isRebin ? 'asym500' : 'uniform',
+      gapFactor: overrides.gapFactor ?? s.rebinGapFactor,
+      columnDirection,
+      cellInset: overrides.cellInset ?? s.cellInset,
+      offsetX: overrides.offsetX ?? s.gridOffsetX,
+      offsetY: overrides.offsetY ?? s.gridOffsetY,
+    },
+  );
+}
+
 function withRegenIfLive(layout: Layout, live: boolean): Layout {
   if (!live) return layout;
   return {
@@ -101,19 +152,29 @@ function withRegenIfLive(layout: Layout, live: boolean): Layout {
 }
 
 /**
+ * Carry user-typed names from `oldCells` over to `freshCells` by matching
+ * (rowIndex, columnIndex). Used after any geometry-only regeneration —
+ * gap/inset/offset sliders, row/column count changes, etc. — so the user
+ * doesn't lose their labels just because the grid was recomputed.
+ */
+function mergeNamesByRowCol(freshCells: Cell[], oldCells: Cell[]): Cell[] {
+  const byKey = new Map<string, string>();
+  for (const cell of oldCells) {
+    byKey.set(`${cell.rowIndex}|${cell.columnIndex}`, cell.name);
+  }
+  return freshCells.map((c) => {
+    const existing = byKey.get(`${c.rowIndex}|${c.columnIndex}`);
+    return existing ? { ...c, name: existing } : c;
+  });
+}
+
+/**
  * Regenerate grid via bilinear, but preserve existing cell names by index where
  * the cell exists. New cells (added because grid grew) get default names.
  */
 function regenWithExistingNames(layout: Layout): Cell[] {
   const fresh = generateGrid(layout.boundaryCorners, layout.rowCount, layout.columnsPerRow);
-  const byKey = new Map<string, string>();
-  for (const cell of layout.cells) {
-    byKey.set(`${cell.rowIndex}|${cell.columnIndex}`, cell.name);
-  }
-  return fresh.map((c) => {
-    const existing = byKey.get(`${c.rowIndex}|${c.columnIndex}`);
-    return existing ? { ...c, name: existing } : c;
-  });
+  return mergeNamesByRowCol(fresh, layout.cells);
 }
 
 export const useLayoutStore = create<LayoutState>()(
@@ -125,10 +186,48 @@ export const useLayoutStore = create<LayoutState>()(
   validationCount: 0,
   geometryMode: 'rebin',
   rebinGapFactor: 0.5,
+  cellInset: 0,
+  gridOffsetX: 0,
+  gridOffsetY: 0,
   currentEntryId: null,
 
   setGeometryMode: (m) => set({ geometryMode: m }),
   setCurrentEntryId: (id) => set({ currentEntryId: id }),
+  setCellInset: (v) =>
+    set((s) => {
+      const clamped = Math.max(0, Math.min(0.4, v));
+      if (s.layout.boundaryCorners.length !== 4) {
+        return { cellInset: clamped };
+      }
+      const fresh = regenCells(s, { cellInset: clamped });
+      const cells = mergeNamesByRowCol(fresh, s.layout.cells);
+      return {
+        cellInset: clamped,
+        layout: { ...s.layout, cells },
+        selectedCellIndex: null,
+      };
+    }),
+  setGridOffset: (axis, v) =>
+    set((s) => {
+      const clamped = Math.max(-200, Math.min(200, v));
+      const patch = axis === 'x' ? { gridOffsetX: clamped } : { gridOffsetY: clamped };
+      if (s.layout.boundaryCorners.length !== 4) {
+        return patch;
+      }
+      const fresh = regenCells(
+        { ...s, ...patch },
+        // Pass the new offset directly so we don't need a fresh getState().
+        axis === 'x'
+          ? { offsetX: clamped }
+          : { offsetY: clamped },
+      );
+      const cells = mergeNamesByRowCol(fresh, s.layout.cells);
+      return {
+        ...patch,
+        layout: { ...s.layout, cells },
+        selectedCellIndex: null,
+      };
+    }),
   setRebinGapFactor: (f) =>
     set((s) => {
       const clamped = Math.max(0, Math.min(2, f));
@@ -138,14 +237,14 @@ export const useLayoutStore = create<LayoutState>()(
       if (s.geometryMode !== 'rebin' || s.layout.boundaryCorners.length !== 4) {
         return { rebinGapFactor: clamped };
       }
-      const corners = s.layout.boundaryCorners;
-      const ordered = canonicalizeCorners([corners[0], corners[1], corners[2], corners[3]]);
-      const cells = generateGridHomography(
-        ordered,
-        s.layout.rowCount,
-        s.layout.columnsPerRow,
-        { canonicalize: false, uMode: 'asym500', gapFactor: clamped },
-      );
+      const ordered = canonicalizeCorners([
+        s.layout.boundaryCorners[0],
+        s.layout.boundaryCorners[1],
+        s.layout.boundaryCorners[2],
+        s.layout.boundaryCorners[3],
+      ]);
+      const fresh = regenCells(s, { gapFactor: clamped });
+      const cells = mergeNamesByRowCol(fresh, s.layout.cells);
       return {
         rebinGapFactor: clamped,
         layout: { ...s.layout, boundaryCorners: ordered, cells },
@@ -292,16 +391,10 @@ export const useLayoutStore = create<LayoutState>()(
       const ordered = isRebin
         ? canonicalizeCorners([corners[0], corners[1], corners[2], corners[3]])
         : corners;
-      const cells = generateGridHomography(
-        ordered,
-        s.layout.rowCount,
-        s.layout.columnsPerRow,
-        {
-          canonicalize: false, // already done above if needed
-          uMode: isRebin ? 'asym500' : 'uniform',
-          gapFactor: s.rebinGapFactor,
-        },
-      );
+      // regenCells reads geometryMode + detects direction + threads all
+      // slider overrides; pass through s with the (possibly canonicalized)
+      // boundary so downstream cell generation sees the right corners.
+      const cells = regenCells({ ...s, layout: { ...s.layout, boundaryCorners: ordered } });
       return {
         layout: {
           ...s.layout,

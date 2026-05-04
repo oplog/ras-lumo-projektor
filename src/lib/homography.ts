@@ -117,26 +117,48 @@ function uRangeForCell(
   cols: number,
   mode: 'uniform' | 'asym500',
   gapFactor: number,
+  direction: 'ltr' | 'rtl',
 ): { uL: number; uR: number } {
+  // RTL grids: ColumnIndex=0 should sit on the right edge, ColumnIndex=N on
+  // the left. We achieve that by computing the u-range for the *mirrored*
+  // column index (cols-1-col) and using it directly — boundary order stays
+  // TL=left / TR=right and asym500's mid-gap remains in the middle.
+  const effectiveCol = direction === 'rtl' ? cols - 1 - col : col;
   const canAsym = mode === 'asym500' && cols >= 4 && cols % 2 === 0;
   if (!canAsym) {
-    return { uL: col / cols, uR: (col + 1) / cols };
+    return { uL: effectiveCol / cols, uR: (effectiveCol + 1) / cols };
   }
   const half = cols / 2;
-  if (col < half) {
-    return { uL: col / cols, uR: (col + 1) / cols };
+  if (effectiveCol < half) {
+    return { uL: effectiveCol / cols, uR: (effectiveCol + 1) / cols };
   }
   // gapFactor = post width relative to a single cell. 0.5 = half-cell post
-  // (the field-validated default; original asym500 behaviour). 0 = no gap;
-  // 1 = a full cell of empty space between the two rebins.
+  // (the field-validated default; original asym500 behaviour).
   const total = cols + gapFactor;
   const rightStart = (half + gapFactor) / total;
   const rightCellW = (1 - rightStart) / half;
-  const j = col - half;
+  const j = effectiveCol - half;
   return {
     uL: rightStart + j * rightCellW,
     uR: rightStart + (j + 1) * rightCellW,
   };
+}
+
+/**
+ * Look at the loaded cells and decide whether ColumnIndex=0 sits on the
+ * left or the right side of the boundary. Some RAS stations number cells
+ * right-to-left (F-1 is top-right, F-N is top-left); we mirror that back
+ * out so Auto Fix doesn't silently flip the layout.
+ */
+export function inferColumnDirection(cells: Cell[]): 'ltr' | 'rtl' {
+  const row0 = cells.filter((c) => c.rowIndex === 0);
+  if (row0.length < 2) return 'ltr';
+  const sorted = [...row0].sort((a, b) => a.columnIndex - b.columnIndex);
+  const first = sorted[0];
+  const last = sorted[sorted.length - 1];
+  const firstX = (first.topLeft.x + first.topRight.x) / 2;
+  const lastX = (last.topLeft.x + last.topRight.x) / 2;
+  return firstX > lastX ? 'rtl' : 'ltr';
 }
 
 export interface HomographyOptions {
@@ -154,6 +176,20 @@ export interface HomographyOptions {
    *  single cell's width. Only meaningful when uMode = 'asym500'.
    *  Default 0.5 reproduces the original behaviour. */
   gapFactor?: number;
+  /** Which side ColumnIndex=0 sits on. 'ltr' = leftmost cell is index 0
+   *  (the typical case). 'rtl' = rightmost cell is index 0 — used when the
+   *  source RAS XML numbers cells right-to-left so Auto Fix doesn't flip
+   *  the layout out from under the user. */
+  columnDirection?: 'ltr' | 'rtl';
+  /** Shrink each cell toward its centre by this fraction (0..0.5). Useful
+   *  for tightening or loosening visible gaps between projected cells when
+   *  the field projector has small alignment offsets. 0 = touching cells. */
+  cellInset?: number;
+  /** Pixel offset applied to every cell corner after homography. Used to
+   *  nudge the entire grid horizontally/vertically when the projector is
+   *  misaligned with the physical bin layout. */
+  offsetX?: number;
+  offsetY?: number;
 }
 
 /**
@@ -191,23 +227,40 @@ export function generateGridHomography(
   const H = buildHomography(TL, TR, BL, BR);
   const uMode = opts?.uMode ?? 'uniform';
   const gapFactor = opts?.gapFactor ?? 0.5;
+  const direction = opts?.columnDirection ?? 'ltr';
+  const inset = Math.max(0, Math.min(0.5, opts?.cellInset ?? 0));
+  const offsetX = opts?.offsetX ?? 0;
+  const offsetY = opts?.offsetY ?? 0;
+  const shift = (c: Corner): Corner => ({ x: c.x + offsetX, y: c.y + offsetY });
   const cells: Cell[] = [];
 
   for (let row = 0; row < rowCount; row++) {
     const cols = columnsPerRow[row];
-    const vTop = row / rowCount;
-    const vBot = (row + 1) / rowCount;
+    const vTopRaw = row / rowCount;
+    const vBotRaw = (row + 1) / rowCount;
+    const vMid = (vTopRaw + vBotRaw) / 2;
+    const vTop = vMid + (vTopRaw - vMid) * (1 - inset);
+    const vBot = vMid + (vBotRaw - vMid) * (1 - inset);
 
     for (let col = 0; col < cols; col++) {
-      const { uL, uR } = uRangeForCell(col, cols, uMode, gapFactor);
+      const { uL: uLRaw, uR: uRRaw } = uRangeForCell(
+        col,
+        cols,
+        uMode,
+        gapFactor,
+        direction,
+      );
+      const uMid = (uLRaw + uRRaw) / 2;
+      const uL = uMid + (uLRaw - uMid) * (1 - inset);
+      const uR = uMid + (uRRaw - uMid) * (1 - inset);
       cells.push({
         name: defaultCellName(row, col, rowCount, cols),
         rowIndex: row,
         columnIndex: col,
-        topLeft: H(uL, vTop),
-        topRight: H(uR, vTop),
-        bottomLeft: H(uL, vBot),
-        bottomRight: H(uR, vBot),
+        topLeft: shift(H(uL, vTop)),
+        topRight: shift(H(uR, vTop)),
+        bottomLeft: shift(H(uL, vBot)),
+        bottomRight: shift(H(uR, vBot)),
       });
     }
   }

@@ -19,11 +19,15 @@ export function Sidebar() {
   const setMode = useLayoutStore((s) => s.setGeometryMode);
   const gapFactor = useLayoutStore((s) => s.rebinGapFactor);
   const setGapFactor = useLayoutStore((s) => s.setRebinGapFactor);
+  const cellInset = useLayoutStore((s) => s.cellInset);
+  const setCellInset = useLayoutStore((s) => s.setCellInset);
+  const gridOffsetX = useLayoutStore((s) => s.gridOffsetX);
+  const gridOffsetY = useLayoutStore((s) => s.gridOffsetY);
+  const setGridOffset = useLayoutStore((s) => s.setGridOffset);
   const layout = useLayoutStore((s) => s.layout);
   const setLayout = useLayoutStore((s) => s.setLayout);
   const currentEntryId = useLayoutStore((s) => s.currentEntryId);
   const setCurrentEntryId = useLayoutStore((s) => s.setCurrentEntryId);
-  const applyHomographyFix = useLayoutStore((s) => s.applyHomographyFix);
   const cells = layout.cells;
   const selected = useLayoutStore((s) => s.selectedCellIndex);
   const select = useLayoutStore((s) => s.selectCell);
@@ -39,36 +43,16 @@ export function Sidebar() {
   const toggleGroup = (g: string) =>
     setOpenGroups((s) => ({ ...s, [g]: !(s[g] ?? true) }));
 
-  /** Load the entry into the editor and, if rebin, run Auto Fix immediately. */
+  /** Load the entry into the editor — pure load, no implicit Auto Fix.
+   *  The user runs Auto Fix explicitly via the toolbar button when (and if)
+   *  they want the rebin geometry corrected. */
   const handleLoadEntry = (entry: LibraryEntry) => {
     try {
       const parsed = parseLayoutFromXml(entry.xml);
       setLayout(parsed);
       setMode(entry.mode);
       setCurrentEntryId(entry.id);
-
-      if (entry.mode === 'rebin' && parsed.boundaryCorners.length === 4) {
-        // Defer one tick so the new layout is in the store before the fix runs.
-        setTimeout(() => {
-          applyHomographyFix();
-          setTimeout(() => {
-            const cur = useLayoutStore.getState().layout;
-            const xml = serializeLayoutToXml(cur);
-            saveFile({
-              group: entry.group,
-              fileName: entry.fileName,
-              mode: entry.mode,
-              xml,
-              replaceId: entry.id,
-            });
-            toast.success(
-              `"${entry.fileName}.xml" yüklendi ve düzeltildi.`,
-            );
-          }, 0);
-        }, 0);
-      } else {
-        toast.info(`"${entry.fileName}.xml" yüklendi.`);
-      }
+      toast.info(`"${entry.fileName}.xml" yüklendi.`);
     } catch (err) {
       toast.error(`Yüklenemedi: ${(err as Error).message}`);
     }
@@ -193,10 +177,10 @@ export function Sidebar() {
     }
   };
 
-  // Auto-save the current layout to its library row when the gap slider
-  // is released. Replaces XML in place — no new row.
-  const saveAfterGap = () => {
-    if (mode !== 'rebin') return;
+  // Auto-save the current layout to its library row when a slider is
+  // released. Replaces XML in place — no new row. Used by both gap and
+  // cell-inset sliders since both regenerate cells in the store.
+  const saveCurrentToLibrary = () => {
     if (layout.cells.length === 0) return;
     if (!currentEntryId) return;
     const existing = groups
@@ -215,10 +199,18 @@ export function Sidebar() {
       /* best-effort */
     }
   };
+  const saveAfterGap = () => {
+    if (mode !== 'rebin') return;
+    saveCurrentToLibrary();
+  };
+  const saveAfterInset = saveCurrentToLibrary;
 
   return (
     <aside className="w-[300px] shrink-0 h-full overflow-y-auto bg-zinc-900/30 border-r border-zinc-800/80">
       <div className="p-5 space-y-5">
+        {/* Display picker — XML's <ScreenConfiguration DeviceName=...> */}
+        <DisplayPicker onCommit={saveCurrentToLibrary} />
+
         {/* Geometry mode toggle */}
         <div>
           <div className="text-xs font-semibold text-zinc-300 mb-2">Geometri Tipi</div>
@@ -284,6 +276,114 @@ export function Sidebar() {
               </div>
             </div>
           )}
+
+          {/* Cell inset — shrinks each cell toward its centre */}
+          <div className="mt-3 rounded-md border border-zinc-800/80 bg-zinc-950/40 px-2.5 py-2">
+            <div className="flex items-center justify-between mb-1">
+              <label
+                htmlFor="cell-inset"
+                className="text-[11px] font-medium text-zinc-300"
+              >
+                Hücre Sıkılığı
+              </label>
+              <span className="text-[11px] font-mono text-amber-300 tabular-nums">
+                {(cellInset * 100).toFixed(0)}%
+              </span>
+            </div>
+            <input
+              id="cell-inset"
+              type="range"
+              min="0"
+              max="0.4"
+              step="0.01"
+              value={cellInset}
+              onChange={(e) => setCellInset(Number(e.target.value))}
+              onMouseUp={saveAfterInset}
+              onTouchEnd={saveAfterInset}
+              onKeyUp={saveAfterInset}
+              className="w-full accent-amber-400"
+            />
+            <p className="text-[10px] text-zinc-500 leading-snug mt-1">
+              Her hücreyi merkeze çeker (boşluk açar).
+            </p>
+          </div>
+
+          {/* Grid X/Y offset — nudge whole grid to align projector with bins */}
+          <div className="mt-3 rounded-md border border-zinc-800/80 bg-zinc-950/40 px-2.5 py-2 space-y-2">
+            <div className="text-[11px] font-medium text-zinc-300">
+              Grid Kaydırma
+              <span className="ml-1 text-[10px] text-zinc-500 font-normal">
+                (yandaki göze taşıyorsa)
+              </span>
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-0.5">
+                <label
+                  htmlFor="grid-offset-x"
+                  className="text-[10px] text-zinc-400"
+                >
+                  Yatay
+                </label>
+                <span className="text-[10px] font-mono text-amber-300 tabular-nums">
+                  {gridOffsetX > 0 ? '+' : ''}
+                  {gridOffsetX} px
+                </span>
+              </div>
+              <input
+                id="grid-offset-x"
+                type="range"
+                min="-100"
+                max="100"
+                step="1"
+                value={gridOffsetX}
+                onChange={(e) => setGridOffset('x', Number(e.target.value))}
+                onMouseUp={saveAfterInset}
+                onTouchEnd={saveAfterInset}
+                onKeyUp={saveAfterInset}
+                className="w-full accent-amber-400"
+              />
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-0.5">
+                <label
+                  htmlFor="grid-offset-y"
+                  className="text-[10px] text-zinc-400"
+                >
+                  Dikey
+                </label>
+                <span className="text-[10px] font-mono text-amber-300 tabular-nums">
+                  {gridOffsetY > 0 ? '+' : ''}
+                  {gridOffsetY} px
+                </span>
+              </div>
+              <input
+                id="grid-offset-y"
+                type="range"
+                min="-100"
+                max="100"
+                step="1"
+                value={gridOffsetY}
+                onChange={(e) => setGridOffset('y', Number(e.target.value))}
+                onMouseUp={saveAfterInset}
+                onTouchEnd={saveAfterInset}
+                onKeyUp={saveAfterInset}
+                className="w-full accent-amber-400"
+              />
+            </div>
+            {(gridOffsetX !== 0 || gridOffsetY !== 0) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setGridOffset('x', 0);
+                  setGridOffset('y', 0);
+                  saveAfterInset();
+                }}
+                className="text-[10px] text-zinc-400 hover:text-zinc-200 underline"
+              >
+                Sıfırla
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Library — groups (stations) holding files */}
@@ -502,6 +602,66 @@ function extractFileName(filename: string): string {
   const base = filename.replace(/\.[^/.]+$/, '');
   const m = base.match(/^projector-layout-(.+)$/i);
   return (m ? m[1] : base).trim();
+}
+
+/**
+ * Compact editor for `\\.\DISPLAYn`. Prefix stays read-only (RAS demands
+ * the exact `\\.\DISPLAY` shape); only the trailing integer is editable.
+ * The prefix tracks whatever the loaded XML carried (slash variants like
+ * `\\?\` are preserved). onCommit persists the change after the user
+ * finishes editing (blur).
+ */
+function DisplayPicker({ onCommit }: { onCommit: () => void }) {
+  const deviceName = useLayoutStore((s) => s.layout.screen.deviceName);
+  const updateScreen = useLayoutStore((s) => s.updateScreen);
+  const { prefix, n } = splitDeviceName(deviceName);
+
+  return (
+    <div className="rounded-md border border-zinc-800/70 bg-zinc-900/40 px-2.5 py-2">
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="text-[11px] font-medium text-zinc-300">
+          Projeksiyon Ekranı
+        </div>
+        <span className="text-[9px] uppercase tracking-wider text-emerald-400/70 font-semibold">
+          XML'e yazılır
+        </span>
+      </div>
+      <div className="flex items-stretch rounded-md overflow-hidden border border-zinc-700/60 focus-within:border-amber-400/60">
+        <span
+          title="Bu kısım sabittir — RAS bu format'ı bekler"
+          className="px-2 py-1.5 text-xs font-mono bg-zinc-950/80 text-zinc-500 border-r border-zinc-700/60 select-all"
+        >
+          {prefix}
+        </span>
+        <input
+          type="number"
+          min={1}
+          max={99}
+          value={n}
+          onFocus={(e) => e.currentTarget.select()}
+          onChange={(e) => {
+            const raw = Number(e.target.value);
+            // Allow any positive integer the user types up to 99; clamp on
+            // commit, but don't fight them mid-typing (so 11, 23 etc. work).
+            const next = Number.isFinite(raw) && raw >= 1 ? Math.min(99, Math.floor(raw)) : 1;
+            updateScreen({ deviceName: `${prefix}${next}` });
+          }}
+          onBlur={onCommit}
+          className="flex-1 bg-zinc-950/80 px-2.5 py-1.5 text-sm text-zinc-100 font-mono focus:outline-none w-16"
+        />
+      </div>
+      <p className="text-[10px] text-zinc-500 leading-snug mt-1.5">
+        Projeksiyon hangi monitöre bağlıysa o sayı. Yanlışsa görüntü başka
+        ekrana düşer.
+      </p>
+    </div>
+  );
+}
+
+function splitDeviceName(value: string): { prefix: string; n: number } {
+  const m = value.match(/^(.*DISPLAY)(\d+)$/i);
+  if (m) return { prefix: m[1], n: Number(m[2]) };
+  return { prefix: '\\\\.\\DISPLAY', n: 1 };
 }
 
 function formatRelative(ts: number): string {
