@@ -578,6 +578,7 @@ export function Sidebar() {
                       type="text"
                       value={cell.name}
                       onChange={(e) => setName(i, e.target.value)}
+                      onBlur={saveCurrentToLibrary}
                       className="flex-1 min-w-0 bg-zinc-950/80 border border-zinc-700/60 rounded px-2 py-1 text-xs text-zinc-100 focus:outline-none focus:border-emerald-500/60"
                     />
                   </div>
