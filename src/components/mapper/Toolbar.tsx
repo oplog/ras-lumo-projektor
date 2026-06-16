@@ -1,25 +1,30 @@
 import { useRef, useState } from 'react';
+import { inferGeometryMode } from '../../lib/defaults';
+import { dialog } from '../../lib/dialog';
+import { downloadFile, safeFileName } from '../../lib/download';
 import { getEntry, saveFile } from '../../lib/library';
 import { useLayoutStore } from '../../lib/store';
 import { toast } from '../../lib/toast';
 import { hasErrors, validateLayout } from '../../lib/validation';
 import { parseLayoutFromXml, serializeLayoutToXml } from '../../lib/xml';
+import { SaveDialog } from './SaveDialog';
 import { XmlViewerModal } from './XmlViewerModal';
 
 const RAS_FOLDER = '%APPDATA%\\OPLOG\\RasStationComms\\Saved Projector Layouts\\';
-const LAST_GROUP_KEY = 'lumo-last-group';
 
 export function Toolbar() {
   const layout = useLayoutStore((s) => s.layout);
   const setLayout = useLayoutStore((s) => s.setLayout);
+  const setMode = useLayoutStore((s) => s.setGeometryMode);
+  const setCurrentEntryId = useLayoutStore((s) => s.setCurrentEntryId);
   const applyHomographyFix = useLayoutStore((s) => s.applyHomographyFix);
   const applyValidationCount = useLayoutStore((s) => s.applyValidationCount);
   const validationCount = useLayoutStore((s) => s.validationCount);
   const currentEntryId = useLayoutStore((s) => s.currentEntryId);
-  const setCurrentEntryId = useLayoutStore((s) => s.setCurrentEntryId);
   const mode = useLayoutStore((s) => s.geometryMode);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showViewer, setShowViewer] = useState(false);
+  const [showSave, setShowSave] = useState(false);
   const [pathCopied, setPathCopied] = useState(false);
 
   const activeEntry = currentEntryId ? getEntry(currentEntryId) : null;
@@ -28,6 +33,8 @@ export function Toolbar() {
     fileInputRef.current?.click();
   };
 
+  /** XML Aç = load into the editor only. Saving to the library is an explicit
+   *  step via the Kaydet dialog, so opening a file never mutates the library. */
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -35,46 +42,17 @@ export function Toolbar() {
       const text = await file.text();
       const parsed = parseLayoutFromXml(text);
       const fileNameFromSource = extractFileName(file.name);
-      if (fileNameFromSource) {
-        parsed.stationName = fileNameFromSource;
-      }
-      // Ask which group this file belongs to. Default = last-used group
-      // (so the user doesn't keep typing the same value), or the file's
-      // own name as a sensible fallback for first-time users.
-      const lastGroup = window.localStorage.getItem(LAST_GROUP_KEY) ?? '';
-      const group = window.prompt(
-        `"${parsed.stationName}" hangi istasyonun altına eklensin?`,
-        lastGroup || parsed.stationName,
-      );
-      if (!group?.trim()) {
-        toast.info('Yükleme iptal edildi.');
-        return;
-      }
-      window.localStorage.setItem(LAST_GROUP_KEY, group.trim());
-
+      if (fileNameFromSource) parsed.stationName = fileNameFromSource;
       setLayout(parsed);
-      const normalizedXml = serializeLayoutToXml(parsed);
-      const saved = saveFile({
-        group: group.trim(),
-        fileName: parsed.stationName,
-        mode: useLayoutStore.getState().geometryMode,
-        xml: normalizedXml,
-      });
-      setCurrentEntryId(saved.id);
-      toast.success(`"${saved.fileName}.xml" → ${saved.group} altına kaydedildi.`);
+      setMode(inferGeometryMode(parsed.metadata.surfaceType));
+      setCurrentEntryId(null); // not in the library until the user saves
+      toast.info(`"${parsed.stationName}.xml" yüklendi. Kaydet ile kütüphaneye ekle.`);
     } catch (err) {
       toast.error(`XML yüklenemedi: ${(err as Error).message}`);
     } finally {
       e.target.value = '';
     }
   };
-
-  /** Strip `projector-layout-` prefix and the file extension. */
-  function extractFileName(filename: string): string {
-    const base = filename.replace(/\.[^/.]+$/, '');
-    const m = base.match(/^projector-layout-(.+)$/i);
-    return (m ? m[1] : base).trim();
-  }
 
   const handleAutoFix = () => {
     if (mode !== 'rebin') {
@@ -86,70 +64,77 @@ export function Toolbar() {
       return;
     }
     applyHomographyFix();
+    // Keep the loaded library row in sync with the corrected geometry.
     setTimeout(() => {
       const cur = useLayoutStore.getState().layout;
-      autoSaveCurrent(serializeLayoutToXml(cur));
-      toast.success(`"${cur.stationName}.xml" düzeltildi ve kaydedildi.`);
+      const saved = syncActiveEntry(serializeLayoutToXml(cur));
+      toast.success(
+        saved
+          ? `"${cur.stationName}.xml" düzeltildi ve kaydedildi.`
+          : `"${cur.stationName}.xml" düzeltildi.`,
+      );
     }, 0);
   };
 
-  const handleSave = () => {
-    let effectiveStationName = layout.stationName.trim();
+  /** XML İndir = download to disk, and keep the active library row in sync. */
+  const handleDownload = async () => {
+    const fresh = useLayoutStore.getState().layout;
+    let effectiveStationName = fresh.stationName.trim();
 
     if (!effectiveStationName) {
       const fallback = `untitled-${formatStamp(new Date())}`;
-      const ok = window.confirm(
-        `Dosya adı boş.\n\n'${fallback}' olarak indirilsin mi?`,
-      );
+      const ok = await dialog.confirm({
+        title: 'Dosya adı boş',
+        message: `'${fallback}' olarak indirilsin mi?`,
+        confirmText: 'İndir',
+      });
       if (!ok) return;
       effectiveStationName = fallback;
     }
 
     const layoutToSave = {
-      ...layout,
+      ...fresh,
       stationName: effectiveStationName,
       lastModified: new Date().toISOString(),
     };
 
     const issues = validateLayout(layoutToSave);
     applyValidationCount(issues.length);
-
     if (hasErrors(issues)) {
-      const proceed = window.confirm(
-        `Layout'ta ${issues.length} doğrulama uyarısı var:\n\n` +
-          issues.map((i) => `• [${i.field}] ${i.message}`).join('\n') +
-          '\n\nYine de indirilsin mi? (Windows app dosyayı reddedebilir)',
-      );
+      const issueList = issues.map((i) => `• [${i.field}] ${i.message}`).join('\n');
+      const proceed = await dialog.confirm({
+        title: `${issues.length} doğrulama uyarısı`,
+        message: `${issueList}\n\nYine de indirilsin mi? (Windows app dosyayı reddedebilir)`,
+        confirmText: 'Yine de İndir',
+        danger: true,
+      });
       if (!proceed) return;
     }
 
     const xml = serializeLayoutToXml(layoutToSave);
-    const safeName = effectiveStationName.replace(/[\\/:*?"<>|]/g, '_');
-    downloadFile(`projector-layout-${safeName}.xml`, xml);
-    autoSaveCurrent(xml);
+    downloadFile(`projector-layout-${safeFileName(effectiveStationName)}.xml`, xml);
+    syncActiveEntry(xml);
   };
 
   /**
-   * Overwrite the active library entry's XML, falling back to a fresh
-   * row under the last-used group if no entry is loaded.
+   * If a library row is loaded, overwrite its XML in place so the library
+   * copy always matches what was just downloaded/fixed. No-op (returns null)
+   * when nothing is loaded — opening then downloading a fresh file won't
+   * silently create library rows; that's what the Kaydet dialog is for.
    */
-  function autoSaveCurrent(xml: string) {
-    const fileName =
-      useLayoutStore.getState().layout.stationName.trim() ||
-      `untitled-${formatStamp(new Date())}`;
-    const m = useLayoutStore.getState().geometryMode;
+  function syncActiveEntry(xml: string) {
+    const id = useLayoutStore.getState().currentEntryId;
+    if (!id) return null;
+    const existing = getEntry(id);
+    if (!existing) return null;
     try {
-      const existing = currentEntryId ? getEntry(currentEntryId) : null;
-      const group =
-        existing?.group ||
-        window.localStorage.getItem(LAST_GROUP_KEY) ||
-        fileName;
+      const fileName = useLayoutStore.getState().layout.stationName.trim() || existing.fileName;
       const saved = saveFile({
-        group,
+        group: existing.group,
         fileName,
-        mode: m,
+        mode: useLayoutStore.getState().geometryMode,
         xml,
-        replaceId: existing?.id,
+        replaceId: existing.id,
       });
       setCurrentEntryId(saved.id);
       return saved;
@@ -217,9 +202,7 @@ export function Toolbar() {
               <span className="text-zinc-300 truncate">{activeEntry.group}</span>
               <span className="text-zinc-500">/</span>
               <span className="text-zinc-400 shrink-0">projector-layout-</span>
-              <span className="text-amber-200 font-semibold truncate">
-                {activeEntry.fileName}
-              </span>
+              <span className="text-amber-200 font-semibold truncate">{activeEntry.fileName}</span>
               <span className="text-zinc-400 shrink-0">.xml</span>
             </span>
           ) : (
@@ -265,10 +248,19 @@ export function Toolbar() {
           )}
           <button
             type="button"
-            onClick={handleSave}
-            className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-amber-400 hover:bg-amber-300 text-zinc-900"
+            onClick={() => setShowSave(true)}
+            title="Mevcut layout'u istasyon/dosya/pod-rebin seçerek kütüphaneye kaydet"
+            className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-emerald-400 hover:bg-emerald-300 text-zinc-900"
           >
-            XML İndir
+            ⤓ Kaydet
+          </button>
+          <button
+            type="button"
+            onClick={handleDownload}
+            title="XML'i diske indir (RAS klasörüne koymak için)"
+            className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700/60 text-zinc-200"
+          >
+            ⬇ XML İndir
           </button>
           <input
             ref={fileInputRef}
@@ -280,8 +272,15 @@ export function Toolbar() {
         </div>
       </div>
       {showViewer && <XmlViewerModal onClose={() => setShowViewer(false)} />}
+      {showSave && <SaveDialog onClose={() => setShowSave(false)} />}
     </div>
   );
+}
+
+function extractFileName(filename: string): string {
+  const base = filename.replace(/\.[^/.]+$/, '');
+  const m = base.match(/^projector-layout-(.+)$/i);
+  return (m ? m[1] : base).trim();
 }
 
 function formatStamp(d: Date): string {
@@ -290,16 +289,4 @@ function formatStamp(d: Date): string {
     `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-` +
     `${pad(d.getHours())}${pad(d.getMinutes())}`
   );
-}
-
-function downloadFile(filename: string, content: string) {
-  const blob = new Blob([content], { type: 'application/xml' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 0);
 }

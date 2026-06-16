@@ -1,5 +1,5 @@
-import type { Cell, Corner } from './types';
 import { defaultCellName } from './cellNaming';
+import type { Cell, Corner } from './types';
 
 /**
  * Canonicalize 4 boundary corners by geometry, regardless of click order.
@@ -11,9 +11,7 @@ import { defaultCellName } from './cellNaming';
  *   TR = corner with largest  (x − y)   ← top-right has large x but small y
  *   BL = corner with smallest (x − y)   ← bottom-left has small x but large y
  */
-export function canonicalizeCorners(
-  corners: Corner[],
-): [Corner, Corner, Corner, Corner] {
+export function canonicalizeCorners(corners: Corner[]): [Corner, Corner, Corner, Corner] {
   if (corners.length !== 4) {
     throw new Error('canonicalizeCorners requires exactly 4 points');
   }
@@ -21,10 +19,10 @@ export function canonicalizeCorners(
   let TR = corners[0];
   let BL = corners[0];
   let BR = corners[0];
-  let minSum = Infinity;
-  let maxSum = -Infinity;
-  let minDiff = Infinity;
-  let maxDiff = -Infinity;
+  let minSum = Number.POSITIVE_INFINITY;
+  let maxSum = Number.NEGATIVE_INFINITY;
+  let minDiff = Number.POSITIVE_INFINITY;
+  let maxDiff = Number.NEGATIVE_INFINITY;
   for (const c of corners) {
     const sum = c.x + c.y;
     const diff = c.x - c.y;
@@ -221,9 +219,7 @@ export function generateGridHomography(
     throw new Error('all column counts must be positive');
   }
 
-  const [TL, TR, BL, BR] = opts?.canonicalize
-    ? canonicalizeCorners(boundary)
-    : boundary;
+  const [TL, TR, BL, BR] = opts?.canonicalize ? canonicalizeCorners(boundary) : boundary;
   const H = buildHomography(TL, TR, BL, BR);
   const uMode = opts?.uMode ?? 'uniform';
   const gapFactor = opts?.gapFactor ?? 0.5;
@@ -243,13 +239,7 @@ export function generateGridHomography(
     const vBot = vMid + (vBotRaw - vMid) * (1 - inset);
 
     for (let col = 0; col < cols; col++) {
-      const { uL: uLRaw, uR: uRRaw } = uRangeForCell(
-        col,
-        cols,
-        uMode,
-        gapFactor,
-        direction,
-      );
+      const { uL: uLRaw, uR: uRRaw } = uRangeForCell(col, cols, uMode, gapFactor, direction);
       const uMid = (uLRaw + uRRaw) / 2;
       const uL = uMid + (uLRaw - uMid) * (1 - inset);
       const uR = uMid + (uRRaw - uMid) * (1 - inset);

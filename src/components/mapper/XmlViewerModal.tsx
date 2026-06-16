@@ -52,9 +52,7 @@ export function XmlViewerModal({ onClose }: { onClose: () => void }) {
       <aside className="w-[80vw] max-w-[1400px] min-w-[480px] h-full flex flex-col bg-zinc-950 border-l border-zinc-700/80 shadow-2xl shadow-black/60 animate-[xmlDrawerIn_180ms_ease-out]">
         <header className="flex items-center justify-between gap-3 px-5 py-3 border-b border-zinc-800/80 bg-zinc-900/40">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="text-sm font-semibold text-zinc-100 shrink-0">
-              XML Önizleme
-            </div>
+            <div className="text-sm font-semibold text-zinc-100 shrink-0">XML Önizleme</div>
             <span className="text-[11px] font-mono text-zinc-500 truncate">
               {layout.stationName || '(adsız)'} · {lineCount} satır · {sizeKb} KB
             </span>
@@ -99,9 +97,8 @@ export function XmlViewerModal({ onClose }: { onClose: () => void }) {
           )}
         </div>
         <footer className="px-5 py-2 border-t border-zinc-800/80 text-[11px] text-zinc-500 bg-zinc-900/40">
-          Bu önizleme mevcut layout'tan üretilmiştir. Düzenlemek için drawer'ı
-          kapatıp sidebar'daki ilgili bölümü kullanın — değişiklikler buraya
-          canlı yansır.
+          Bu önizleme mevcut layout'tan üretilmiştir. Düzenlemek için drawer'ı kapatıp sidebar'daki
+          ilgili bölümü kullanın — değişiklikler buraya canlı yansır.
         </footer>
       </aside>
     </div>

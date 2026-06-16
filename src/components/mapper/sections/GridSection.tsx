@@ -13,7 +13,10 @@ export function GridSection() {
   const total = columnsPerRow.reduce((a, b) => a + b, 0);
 
   return (
-    <Section title="Grid (Satır × Sütun)" hint="Satır + her satır için sütun sayısı; bilinear ile otomatik üretir">
+    <Section
+      title="Grid (Satır × Sütun)"
+      hint="Satır + her satır için sütun sayısı; bilinear ile otomatik üretir"
+    >
       <Field label="Toplam Satır (RowCount)">
         <NumberInput
           min={1}
@@ -42,9 +45,7 @@ export function GridSection() {
         </div>
       </div>
 
-      <div className="text-[11px] text-zinc-500 font-mono">
-        Toplam hücre: {total}
-      </div>
+      <div className="text-[11px] text-zinc-500 font-mono">Toplam hücre: {total}</div>
 
       <label className="flex items-center gap-2 text-[11px] text-zinc-300">
         <input

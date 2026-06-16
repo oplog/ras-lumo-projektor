@@ -1,5 +1,15 @@
 import { generateGrid } from './bilinear';
-import type { Layout } from './types';
+import type { GeometryMode } from './libraryCore';
+import type { Layout, SurfaceType } from './types';
+
+/**
+ * Best-guess geometry mode for a freshly-opened XML. RAS rebin geometry
+ * (two adjacent units + centre post) comes from the Put/Pack to-light
+ * surfaces; everything else is treated as a single-surface pod.
+ */
+export function inferGeometryMode(surfaceType: SurfaceType): GeometryMode {
+  return surfaceType === 'PutToLight' || surfaceType === 'PackToLight' ? 'rebin' : 'pod';
+}
 
 /** Sensible empty layout to bootstrap a new mapping session. */
 export function makeEmptyLayout(): Layout {

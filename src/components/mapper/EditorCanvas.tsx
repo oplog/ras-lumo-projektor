@@ -26,9 +26,7 @@ export function EditorCanvas() {
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="max-w-sm text-center space-y-3">
           <div className="text-zinc-500 text-5xl leading-none">⌗</div>
-          <div className="text-zinc-300 text-sm font-medium">
-            Henüz dosya yüklenmedi
-          </div>
+          <div className="text-zinc-300 text-sm font-medium">Henüz dosya yüklenmedi</div>
           <div className="text-zinc-500 text-[11px] leading-relaxed">
             Toolbar'dan <span className="text-zinc-300">XML Aç</span> ile bir
             <code className="mx-1 font-mono text-zinc-300">projector-layout-X.xml</code>
@@ -58,7 +56,7 @@ export function EditorCanvas() {
   const strokeThin = clamp(1.5 / scale, 0.75, 1.5);
 
   const cells = layout.cells;
-  const selectedCell = selectedCellIndex !== null ? cells[selectedCellIndex] ?? null : null;
+  const selectedCell = selectedCellIndex !== null ? (cells[selectedCellIndex] ?? null) : null;
 
   const cellColor = useMemo(
     () => (cell: Cell) =>
@@ -112,8 +110,12 @@ export function EditorCanvas() {
                   }}
                 />
                 <text
-                  x={(cell.topLeft.x + cell.topRight.x + cell.bottomLeft.x + cell.bottomRight.x) / 4}
-                  y={(cell.topLeft.y + cell.topRight.y + cell.bottomLeft.y + cell.bottomRight.y) / 4}
+                  x={
+                    (cell.topLeft.x + cell.topRight.x + cell.bottomLeft.x + cell.bottomRight.x) / 4
+                  }
+                  y={
+                    (cell.topLeft.y + cell.topRight.y + cell.bottomLeft.y + cell.bottomRight.y) / 4
+                  }
                   fill={isSelected ? '#fff' : 'rgb(255 255 255 / 0.85)'}
                   fontSize={Math.max(10, Math.min(20, cellTextSize(cell) / 4))}
                   fontWeight={isSelected ? 700 : 500}
@@ -181,12 +183,9 @@ function BoundaryOutline({
   stroke: number;
 }) {
   const [TL, TR, BL, BR] = corners;
-  const points = [
-    `${TL.x},${TL.y}`,
-    `${TR.x},${TR.y}`,
-    `${BR.x},${BR.y}`,
-    `${BL.x},${BL.y}`,
-  ].join(' ');
+  const points = [`${TL.x},${TL.y}`, `${TR.x},${TR.y}`, `${BR.x},${BR.y}`, `${BL.x},${BL.y}`].join(
+    ' ',
+  );
   return (
     <polygon
       points={points}

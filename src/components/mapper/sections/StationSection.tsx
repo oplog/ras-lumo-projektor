@@ -25,8 +25,8 @@ export function StationSection() {
           <span className="text-emerald-400 text-xs leading-4 mt-px">ℹ</span>
           <p className="text-[11px] leading-snug text-emerald-100/80">
             RAS yalnızca <code className="font-mono text-emerald-300">projector-layout-</code>
-            ile başlayan dosyaları yükler. Dosya açtığında bu kısım otomatik
-            ayıklanır ve XML içine yazılır.
+            ile başlayan dosyaları yükler. Dosya açtığında bu kısım otomatik ayıklanır ve XML içine
+            yazılır.
           </p>
         </div>
       </Field>

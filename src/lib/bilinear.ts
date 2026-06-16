@@ -1,5 +1,5 @@
-import type { Cell, Corner } from './types';
 import { defaultCellName } from './cellNaming';
+import type { Cell, Corner } from './types';
 
 /**
  * Bilinear interpolation inside a quadrilateral.
@@ -15,10 +15,8 @@ export function interpolate(
   u: number,
   v: number,
 ): Corner {
-  const x =
-    (1 - u) * (1 - v) * TL.x + u * (1 - v) * TR.x + (1 - u) * v * BL.x + u * v * BR.x;
-  const y =
-    (1 - u) * (1 - v) * TL.y + u * (1 - v) * TR.y + (1 - u) * v * BL.y + u * v * BR.y;
+  const x = (1 - u) * (1 - v) * TL.x + u * (1 - v) * TR.x + (1 - u) * v * BL.x + u * v * BR.x;
+  const y = (1 - u) * (1 - v) * TL.y + u * (1 - v) * TR.y + (1 - u) * v * BL.y + u * v * BR.y;
   return { x, y };
 }
 
@@ -39,7 +37,9 @@ export function generateGrid(
     throw new Error('rowCount must be positive');
   }
   if (columnsPerRow.length !== rowCount) {
-    throw new Error(`columnsPerRow length (${columnsPerRow.length}) must equal rowCount (${rowCount})`);
+    throw new Error(
+      `columnsPerRow length (${columnsPerRow.length}) must equal rowCount (${rowCount})`,
+    );
   }
   if (columnsPerRow.some((c) => c <= 0)) {
     throw new Error('all column counts must be positive');

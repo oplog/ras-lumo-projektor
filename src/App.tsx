@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
+import { DialogHost } from './components/DialogHost';
+import { ToastHost } from './components/ToastHost';
 import { EditorCanvas } from './components/mapper/EditorCanvas';
 import { Sidebar } from './components/mapper/Sidebar';
 import { Toolbar } from './components/mapper/Toolbar';
-import { ToastHost } from './components/ToastHost';
 import { loadDraft, startAutoSave } from './lib/persistence';
 import { useProjectionSync } from './lib/projection-sync';
 import { useLayoutStore } from './lib/store';
@@ -32,6 +33,7 @@ export function App() {
         <EditorCanvas />
       </div>
       <ToastHost />
+      <DialogHost />
     </div>
   );
 }

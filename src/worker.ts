@@ -19,7 +19,7 @@ interface Env {
 
 const LIBRARY_KEY = 'library.json';
 
-const EMPTY_LIBRARY = JSON.stringify({ entries: [], emptyStations: [] });
+const EMPTY_LIBRARY = JSON.stringify({ entries: [], emptyGroups: [] });
 
 const corsHeaders: Record<string, string> = {
   'access-control-allow-origin': '*',

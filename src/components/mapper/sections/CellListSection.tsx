@@ -8,7 +8,11 @@ export function CellListSection() {
   const setName = useLayoutStore((s) => s.setCellName);
 
   return (
-    <Section title={`Hücreler (${cells.length})`} hint="İsimlendirme + canvas'tan seçim" defaultOpen={false}>
+    <Section
+      title={`Hücreler (${cells.length})`}
+      hint="İsimlendirme + canvas'tan seçim"
+      defaultOpen={false}
+    >
       <div className="space-y-1 max-h-80 overflow-y-auto pr-1">
         {cells.map((cell, i) => {
           const isSelected = i === selected;

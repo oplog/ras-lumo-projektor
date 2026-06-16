@@ -37,8 +37,7 @@ export function ScreenSection() {
             onFocus={(e) => e.currentTarget.select()}
             onChange={(e) => {
               const raw = Number(e.target.value);
-              const next =
-                Number.isFinite(raw) && raw >= 1 ? Math.min(99, Math.floor(raw)) : 1;
+              const next = Number.isFinite(raw) && raw >= 1 ? Math.min(99, Math.floor(raw)) : 1;
               update({ deviceName: `${prefix}${next}` });
             }}
             className="flex-1 bg-zinc-950/80 px-2.5 py-1.5 text-sm text-zinc-100 font-mono focus:outline-none"
@@ -49,9 +48,9 @@ export function ScreenSection() {
           <p className="text-[11px] leading-snug text-amber-200/90">
             <span className="font-semibold">Display numarası önemli.</span> Bu değer projeksiyon
             cihazının Windows'ta hangi ekran olduğunu söyler — yanlış girilirse görüntü başka
-            monitöre düşer. <code className="font-mono">{prefix}</code> kısmı RAS'ın beklediği
-            sabit format; sadece sondaki <span className="font-semibold">sayıyı</span> projeksiyon
-            hangi display'e bağlıysa o yapın (örn. {prefix}1, {prefix}2, {prefix}3).
+            monitöre düşer. <code className="font-mono">{prefix}</code> kısmı RAS'ın beklediği sabit
+            format; sadece sondaki <span className="font-semibold">sayıyı</span> projeksiyon hangi
+            display'e bağlıysa o yapın (örn. {prefix}1, {prefix}2, {prefix}3).
           </p>
         </div>
       </Field>

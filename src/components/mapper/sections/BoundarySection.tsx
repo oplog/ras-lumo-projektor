@@ -18,17 +18,13 @@ export function BoundarySection() {
             <span className="text-[11px] text-zinc-300">{LABELS[i]}</span>
             <NumberInput
               value={c.x}
-              onChange={(e) =>
-                setExact(i as 0 | 1 | 2 | 3, { x: Number(e.target.value), y: c.y })
-              }
+              onChange={(e) => setExact(i as 0 | 1 | 2 | 3, { x: Number(e.target.value), y: c.y })}
               placeholder="X"
               step="any"
             />
             <NumberInput
               value={c.y}
-              onChange={(e) =>
-                setExact(i as 0 | 1 | 2 | 3, { x: c.x, y: Number(e.target.value) })
-              }
+              onChange={(e) => setExact(i as 0 | 1 | 2 | 3, { x: c.x, y: Number(e.target.value) })}
               placeholder="Y"
               step="any"
             />

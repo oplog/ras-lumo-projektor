@@ -28,8 +28,7 @@ export const useToastStore = create<ToastStore>((set) => ({
       set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }));
     }, TIMEOUT_MS);
   },
-  dismiss: (id) =>
-    set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
+  dismiss: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
 }));
 
 /** Imperative shorthand — usable from any handler without `useToastStore()`. */

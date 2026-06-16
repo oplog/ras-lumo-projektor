@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { createProjectionChannel, postProjection } from '../projection-channel';
 import type { Cell, Corner, Layout } from '../lib/types';
+import { createProjectionChannel, postProjection } from '../projection-channel';
 
 /**
  * Projector window — renders the editor's current layout in real time so the
@@ -186,10 +186,8 @@ function CellPolygon({ cell, filled }: { cell: Cell; filled: boolean }) {
     );
   }
 
-  const cx =
-    (cell.topLeft.x + cell.topRight.x + cell.bottomLeft.x + cell.bottomRight.x) / 4;
-  const cy =
-    (cell.topLeft.y + cell.topRight.y + cell.bottomLeft.y + cell.bottomRight.y) / 4;
+  const cx = (cell.topLeft.x + cell.topRight.x + cell.bottomLeft.x + cell.bottomRight.x) / 4;
+  const cy = (cell.topLeft.y + cell.topRight.y + cell.bottomLeft.y + cell.bottomRight.y) / 4;
   const w = Math.abs(cell.topRight.x - cell.topLeft.x);
   const fontSize = Math.max(10, Math.min(28, w / 6));
 
