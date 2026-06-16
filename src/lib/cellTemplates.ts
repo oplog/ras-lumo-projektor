@@ -12,11 +12,27 @@ export interface CellTemplate {
   names: string[];
 }
 
+/** Build "W-{letter}-{01..count}" for each row letter, in cell order. */
+function rowMajorWLabels(rowLetters: string[], colsPerRow: number): string[] {
+  const out: string[] = [];
+  for (const letter of rowLetters) {
+    for (let n = 1; n <= colsPerRow; n++) {
+      out.push(`W-${letter}-${String(n).padStart(2, '0')}`);
+    }
+  }
+  return out;
+}
+
 /**
- * Ready-made templates shipped with the app. Add entries here as
- * `{ name: 'RAS 16x6', names: ['W-E-01', 'W-E-02', ...] }`.
+ * Ready-made templates shipped with the app. The RAS-PAKETLEME layout is a
+ * 6×12 grid whose rows read F (top) → A (bottom), giving W-F-01..W-A-12.
  */
-export const BUILTIN_TEMPLATES: CellTemplate[] = [];
+export const BUILTIN_TEMPLATES: CellTemplate[] = [
+  {
+    name: 'RAS-PAKETLEME (W-F→W-A · 72)',
+    names: rowMajorWLabels(['F', 'E', 'D', 'C', 'B', 'A'], 12),
+  },
+];
 
 const STORAGE_KEY = 'lumo-cell-name-templates';
 
@@ -29,6 +45,22 @@ export function parseCellNames(text: string): string[] {
   const byLine = text.split(/\r?\n/);
   const source = byLine.length > 1 ? byLine : text.split(',');
   return source.map((s) => s.trim()).filter((s) => s !== '');
+}
+
+/**
+ * Convert a raw cell label like "F-1", "f1" or "E-12" into the RAS form
+ * "W-F-01" / "W-E-12" — prepend "W-" and zero-pad the number to 2 digits.
+ * Already-prefixed or non-matching names are returned unchanged.
+ */
+export function toWLabel(name: string): string {
+  const trimmed = name.trim();
+  const m = trimmed.match(/^([A-Za-z]+)[-_ ]?(\d+)$/);
+  if (!m) return trimmed;
+  return `W-${m[1].toUpperCase()}-${m[2].padStart(2, '0')}`;
+}
+
+export function applyWPrefix(names: string[]): string[] {
+  return names.map(toWLabel);
 }
 
 export function listCustomTemplates(): CellTemplate[] {

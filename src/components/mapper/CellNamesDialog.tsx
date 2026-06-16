@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   type CellTemplate,
   allTemplates,
+  applyWPrefix,
   deleteCustomTemplate,
   parseCellNames,
   saveCustomTemplate,
@@ -127,12 +128,32 @@ export function CellNamesDialog({
           </div>
         )}
 
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] text-zinc-400 mr-0.5">Dönüştür:</span>
+          <button
+            type="button"
+            onClick={() => setText(applyWPrefix(parseCellNames(text)).join('\n'))}
+            title="Her satıra W- öneki ekler ve numarayı 2 haneye tamamlar"
+            className="text-[11px] px-2 py-0.5 rounded-md border border-zinc-700/60 bg-zinc-800/60 hover:bg-zinc-700/60 text-zinc-200"
+          >
+            F-1 → W-F-01
+          </button>
+          <button
+            type="button"
+            onClick={() => setText(parseCellNames(text).reverse().join('\n'))}
+            title="Sırayı ters çevir (numaralar tersten gidiyorsa)"
+            className="text-[11px] px-2 py-0.5 rounded-md border border-zinc-700/60 bg-zinc-800/60 hover:bg-zinc-700/60 text-zinc-200"
+          >
+            ↑↓ Ters çevir
+          </button>
+        </div>
+
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           spellCheck={false}
           rows={12}
-          placeholder={'A-1\nA-2\nB-1\nB-2'}
+          placeholder={'F-1\nF-2\nE-1\nE-2'}
           className="w-full bg-zinc-950/80 border border-zinc-700/60 rounded-md px-3 py-2 text-xs font-mono text-zinc-100 focus:outline-none focus:border-emerald-500/60 resize-y"
         />
 

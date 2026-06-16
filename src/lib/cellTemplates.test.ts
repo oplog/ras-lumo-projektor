@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseCellNames } from './cellTemplates';
+import { BUILTIN_TEMPLATES, applyWPrefix, parseCellNames, toWLabel } from './cellTemplates';
 
 describe('parseCellNames', () => {
   it('splits one name per line and trims', () => {
@@ -24,5 +24,38 @@ describe('parseCellNames', () => {
 
   it('preserves Turkish characters', () => {
     expect(parseCellNames('Sağ Göz\nSol Göz')).toEqual(['Sağ Göz', 'Sol Göz']);
+  });
+});
+
+describe('toWLabel / applyWPrefix', () => {
+  it('converts "F-1" → "W-F-01" (prefix + zero-pad)', () => {
+    expect(toWLabel('F-1')).toBe('W-F-01');
+    expect(toWLabel('A-12')).toBe('W-A-12');
+    expect(toWLabel('E-9')).toBe('W-E-09');
+  });
+
+  it('handles no-dash, lowercase ("f1" → "W-F-01")', () => {
+    expect(toWLabel('f1')).toBe('W-F-01');
+    expect(toWLabel('b7')).toBe('W-B-07');
+  });
+
+  it('leaves already-prefixed or non-matching names unchanged', () => {
+    expect(toWLabel('W-F-01')).toBe('W-F-01');
+    expect(toWLabel('Sol Göz')).toBe('Sol Göz');
+  });
+
+  it('maps a whole row in order', () => {
+    expect(applyWPrefix(['F-1', 'F-2', 'F-3'])).toEqual(['W-F-01', 'W-F-02', 'W-F-03']);
+  });
+});
+
+describe('BUILTIN_TEMPLATES', () => {
+  it('ships the RAS-PAKETLEME 6×12 template (W-F-01 … W-A-12)', () => {
+    const tpl = BUILTIN_TEMPLATES.find((t) => t.names.length === 72);
+    expect(tpl).toBeTruthy();
+    expect(tpl?.names[0]).toBe('W-F-01');
+    expect(tpl?.names[11]).toBe('W-F-12');
+    expect(tpl?.names[12]).toBe('W-E-01');
+    expect(tpl?.names.at(-1)).toBe('W-A-12');
   });
 });

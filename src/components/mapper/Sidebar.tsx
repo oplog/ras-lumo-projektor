@@ -256,6 +256,8 @@ export function Sidebar() {
       toast.success(
         `"${fileName}.xml" → 📁 ${targetGroup} (${parsed.cells.length} göz, ${named} adlı) yüklendi.`,
       );
+      // Jump straight to bulk naming so the user can set/convert göz adları.
+      if (parsed.cells.length > 0) setShowBulkNames(true);
     } catch (err) {
       toast.error(`XML yüklenemedi: ${(err as Error).message}`);
     } finally {
