@@ -372,7 +372,7 @@ export function Sidebar() {
                         max={2}
                         step={0.05}
                         suffix="×"
-                        widthClass="w-14"
+                        widthClass="w-16"
                       />
                     </div>
                     <input
@@ -410,7 +410,7 @@ export function Sidebar() {
                       max={40}
                       step={1}
                       suffix="%"
-                      widthClass="w-14"
+                      widthClass="w-16"
                     />
                   </div>
                   <input
@@ -829,7 +829,7 @@ function NumberField({
   max,
   step = 1,
   suffix,
-  widthClass = 'w-16',
+  widthClass = 'w-20',
 }: {
   value: number;
   onChange: (n: number) => void;
@@ -880,9 +880,9 @@ function NumberField({
           if (e.key === 'Enter') e.currentTarget.blur();
         }}
         onBlur={commit}
-        className={`${widthClass} bg-zinc-950/80 border border-zinc-700/60 rounded px-1.5 py-0.5 text-[11px] text-right font-mono tabular-nums text-zinc-100 focus:outline-none focus:border-amber-400/60`}
+        className={`${widthClass} bg-zinc-950/80 border border-zinc-700/60 rounded-md px-2.5 py-1.5 text-sm text-right font-mono tabular-nums text-zinc-100 focus:outline-none focus:border-amber-400/70`}
       />
-      {suffix && <span className="text-[10px] text-zinc-500">{suffix}</span>}
+      {suffix && <span className="text-[11px] text-zinc-500 font-medium">{suffix}</span>}
     </span>
   );
 }
