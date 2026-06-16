@@ -8,7 +8,7 @@ import {
   listByGroup,
   saveFile,
 } from '../../lib/library';
-import { useLayoutStore } from '../../lib/store';
+import { getViewSettings, useLayoutStore } from '../../lib/store';
 import { toast } from '../../lib/toast';
 import { serializeLayoutToXml } from '../../lib/xml';
 import { GhostButton, Modal, PrimaryButton } from '../Modal';
@@ -63,7 +63,13 @@ export function SaveDialog({ onClose }: { onClose: () => void }) {
         stationName: trimmedFile,
         lastModified: new Date().toISOString(),
       });
-      const saved = saveFile({ group: trimmedGroup, fileName: trimmedFile, mode, xml });
+      const saved = saveFile({
+        group: trimmedGroup,
+        fileName: trimmedFile,
+        mode,
+        xml,
+        settings: getViewSettings(),
+      });
       setCurrentEntryId(saved.id);
       window.localStorage.setItem(LAST_GROUP_KEY, trimmedGroup);
 

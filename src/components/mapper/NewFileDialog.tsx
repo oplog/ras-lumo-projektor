@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { makeEmptyLayout } from '../../lib/defaults';
 import { type GeometryMode, findByName, flushLibrary, saveFile } from '../../lib/library';
-import { useLayoutStore } from '../../lib/store';
+import { applyViewSettings, getViewSettings, useLayoutStore } from '../../lib/store';
 import { toast } from '../../lib/toast';
 import { serializeLayoutToXml } from '../../lib/xml';
 import { GhostButton, Modal, PrimaryButton } from '../Modal';
@@ -57,8 +57,15 @@ export function NewFileDialog({
       fresh.stationName = trimmedFile;
       setLayout(fresh);
       setMode(mode);
+      applyViewSettings(undefined); // new file → default sliders
       const xml = serializeLayoutToXml(fresh);
-      const saved = saveFile({ group, fileName: trimmedFile, mode, xml });
+      const saved = saveFile({
+        group,
+        fileName: trimmedFile,
+        mode,
+        xml,
+        settings: getViewSettings(),
+      });
       setCurrentEntryId(saved.id);
       const ok = await flushLibrary();
       if (ok) {

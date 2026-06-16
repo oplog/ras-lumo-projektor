@@ -133,6 +133,48 @@ describe('saveFile', () => {
   });
 });
 
+describe('per-file settings', () => {
+  const settings = { gapFactor: 0.5, cellInset: 0.1, gridOffsetX: 10, gridOffsetY: -5 };
+
+  it('saveFile stores settings', () => {
+    const r = core.saveFile(
+      base(),
+      { group: 'G', fileName: 'f', mode: 'rebin', xml: '<a/>', settings },
+      { id: 'id-1', savedAt: 1 },
+    );
+    expect(r.entry.settings).toEqual(settings);
+  });
+
+  it('preserves existing settings when a later save omits them', () => {
+    let s = core.saveFile(
+      base(),
+      { group: 'G', fileName: 'f', mode: 'rebin', xml: '<v1/>', settings },
+      { id: 'id-1', savedAt: 1 },
+    ).state;
+    // re-save same target without settings (e.g. a plain name edit path)
+    s = core.saveFile(
+      s,
+      { group: 'G', fileName: 'f', mode: 'rebin', xml: '<v2/>' },
+      { id: 'id-2', savedAt: 2 },
+    ).state;
+    expect(s.entries[0].settings).toEqual(settings);
+  });
+
+  it('consolidate parses settings and ignores garbage', () => {
+    const out = core.consolidate(
+      {
+        entries: [
+          { group: 'G', fileName: 'a', xml: '<a/>', settings },
+          { group: 'G', fileName: 'b', xml: '<b/>', settings: 'nope' },
+        ],
+      },
+      idGen(),
+    );
+    expect(out.entries[0].settings).toEqual(settings);
+    expect(out.entries[1].settings).toBeUndefined();
+  });
+});
+
 describe('deleteEntry', () => {
   it('removes the entry and keeps the now-empty group as a placeholder', () => {
     let s = base();

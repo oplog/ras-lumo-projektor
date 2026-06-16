@@ -3,7 +3,7 @@ import { inferGeometryMode } from '../../lib/defaults';
 import { dialog } from '../../lib/dialog';
 import { downloadFile, safeFileName } from '../../lib/download';
 import { getEntry, saveFile } from '../../lib/library';
-import { useLayoutStore } from '../../lib/store';
+import { getViewSettings, useLayoutStore } from '../../lib/store';
 import { toast } from '../../lib/toast';
 import { hasErrors, validateLayout } from '../../lib/validation';
 import { parseLayoutFromXml, serializeLayoutToXml } from '../../lib/xml';
@@ -135,6 +135,7 @@ export function Toolbar() {
         mode: useLayoutStore.getState().geometryMode,
         xml,
         replaceId: existing.id,
+        settings: getViewSettings(),
       });
       setCurrentEntryId(saved.id);
       return saved;

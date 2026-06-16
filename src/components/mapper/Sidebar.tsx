@@ -14,7 +14,7 @@ import {
   subscribeLibrary,
   updateEntry,
 } from '../../lib/library';
-import { useLayoutStore } from '../../lib/store';
+import { applyViewSettings, getViewSettings, useLayoutStore } from '../../lib/store';
 import { toast } from '../../lib/toast';
 import { parseLayoutFromXml, serializeLayoutToXml } from '../../lib/xml';
 import { CellNamesDialog } from './CellNamesDialog';
@@ -99,6 +99,7 @@ export function Sidebar() {
       const parsed = parseLayoutFromXml(entry.xml);
       setLayout(parsed);
       setMode(entry.mode);
+      applyViewSettings(entry.settings); // restore this file's sliders
       setCurrentEntryId(entry.id);
       toast.info(`"${entry.fileName}.xml" yüklendi.`);
     } catch (err) {
@@ -245,11 +246,13 @@ export function Sidebar() {
       const fileMode = inferGeometryMode(parsed.metadata.surfaceType);
       setLayout(parsed);
       setMode(fileMode);
+      applyViewSettings(undefined); // fresh upload → default sliders
       const saved = saveFile({
         group: targetGroup,
         fileName,
         mode: fileMode,
         xml: serializeLayoutToXml(parsed),
+        settings: getViewSettings(),
       });
       setCurrentEntryId(saved.id);
       const named = parsed.cells.filter((c) => c.name.trim() !== '').length;
@@ -285,6 +288,7 @@ export function Sidebar() {
         mode: st.geometryMode,
         xml: serializeLayoutToXml(st.layout),
         replaceId: existing.id,
+        settings: getViewSettings(),
       });
     } catch {
       /* best-effort auto-save */

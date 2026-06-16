@@ -17,6 +17,18 @@
 
 export type GeometryMode = 'pod' | 'rebin';
 
+/**
+ * Per-file editor settings that aren't part of the RAS XML (they only bake
+ * into the cell geometry). Persisted alongside the entry so the sliders show
+ * the values that were applied when the file is reopened.
+ */
+export interface LayoutSettings {
+  gapFactor: number;
+  cellInset: number;
+  gridOffsetX: number;
+  gridOffsetY: number;
+}
+
 export interface LibraryEntry {
   id: string;
   /** Station / group the file belongs to. Free text. */
@@ -26,6 +38,8 @@ export interface LibraryEntry {
   mode: GeometryMode;
   xml: string;
   savedAt: number;
+  /** Slider values applied to this file (offset/inset/gap). Optional/legacy. */
+  settings?: LayoutSettings;
 }
 
 export interface LibraryState {
@@ -77,6 +91,7 @@ export function consolidate(data: unknown, makeId: () => string): LibraryState {
       mode: r.mode === 'rebin' ? 'rebin' : 'pod',
       xml: r.xml,
       savedAt: typeof r.savedAt === 'number' ? r.savedAt : 0,
+      settings: parseSettings(r.settings),
     });
   }
   const rawGroups = Array.isArray(d?.emptyGroups)
@@ -165,6 +180,8 @@ export interface SaveFileInput {
   xml: string;
   /** Force-replace a specific row by id (used by in-place auto-save). */
   replaceId?: string;
+  /** Slider values applied to this file; persisted so they restore on load. */
+  settings?: LayoutSettings;
 }
 
 /**
@@ -201,6 +218,7 @@ export function saveFile(
     mode: input.mode,
     xml: input.xml,
     savedAt: meta.savedAt,
+    settings: input.settings ?? existing?.settings,
   };
 
   const entries = existing
@@ -272,4 +290,18 @@ export function updateEntry(
 
 function dedupe(arr: string[]): string[] {
   return Array.from(new Set(arr));
+}
+
+function parseSettings(s: unknown): LayoutSettings | undefined {
+  if (!s || typeof s !== 'object') return undefined;
+  const o = s as Record<string, unknown>;
+  const keys = ['gapFactor', 'cellInset', 'gridOffsetX', 'gridOffsetY'] as const;
+  if (keys.every((k) => typeof o[k] !== 'number')) return undefined;
+  const num = (v: unknown, d: number) => (typeof v === 'number' && Number.isFinite(v) ? v : d);
+  return {
+    gapFactor: num(o.gapFactor, 0.5),
+    cellInset: num(o.cellInset, 0),
+    gridOffsetX: num(o.gridOffsetX, 0),
+    gridOffsetY: num(o.gridOffsetY, 0),
+  };
 }

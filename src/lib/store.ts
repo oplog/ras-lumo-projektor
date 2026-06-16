@@ -6,6 +6,7 @@ import { generateGrid } from './bilinear';
 import { mergeNamesByRowCol } from './cellNaming';
 import { makeBlankLayout } from './defaults';
 import { canonicalizeCorners, generateGridHomography, inferColumnDirection } from './homography';
+import type { LayoutSettings } from './libraryCore';
 import { defaultSurfaceLabel } from './types';
 import type { Cell, Corner, Layout, Metadata, ScreenConfig, SurfaceType } from './types';
 
@@ -418,4 +419,29 @@ export const useLayoutStore = create<LayoutState>()(
 /** React-friendly hook to read temporal (undo/redo) state with reactivity. */
 export function useTemporalLayout<T>(selector: (state: TemporalState<{ layout: Layout }>) => T): T {
   return useStore(useLayoutStore.temporal, selector);
+}
+
+/** Snapshot the current slider settings (for persisting alongside a file). */
+export function getViewSettings(): LayoutSettings {
+  const s = useLayoutStore.getState();
+  return {
+    gapFactor: s.rebinGapFactor,
+    cellInset: s.cellInset,
+    gridOffsetX: s.gridOffsetX,
+    gridOffsetY: s.gridOffsetY,
+  };
+}
+
+/**
+ * Restore slider settings WITHOUT regenerating cells — the loaded layout's
+ * cells already bake in the geometry, so we only sync the slider values so the
+ * UI shows what was applied. Missing values fall back to defaults.
+ */
+export function applyViewSettings(v?: LayoutSettings): void {
+  useLayoutStore.setState({
+    rebinGapFactor: v?.gapFactor ?? 0.5,
+    cellInset: v?.cellInset ?? 0,
+    gridOffsetX: v?.gridOffsetX ?? 0,
+    gridOffsetY: v?.gridOffsetY ?? 0,
+  });
 }

@@ -14,12 +14,19 @@ import * as core from './libraryCore';
 import type {
   GeometryMode,
   GroupView,
+  LayoutSettings,
   LibraryEntry,
   LibraryState,
   UpdatePatch,
 } from './libraryCore';
 
-export type { GeometryMode, GroupView, LibraryEntry, LibraryState } from './libraryCore';
+export type {
+  GeometryMode,
+  GroupView,
+  LayoutSettings,
+  LibraryEntry,
+  LibraryState,
+} from './libraryCore';
 
 const API_URL = '/api/library';
 const MIRROR_KEY = 'lumo-library-mirror-v3';
@@ -206,6 +213,7 @@ export function saveFile(opts: {
   mode: GeometryMode;
   xml: string;
   replaceId?: string;
+  settings?: LayoutSettings;
 }): LibraryEntry {
   const { state, entry } = core.saveFile(cache, opts, {
     id: makeId(),
