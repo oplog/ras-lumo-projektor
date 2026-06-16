@@ -4,6 +4,7 @@ import { dialog } from '../../lib/dialog';
 import {
   type LibraryEntry,
   clearLibrary,
+  createEmptyGroup,
   deleteEntry,
   getEntry,
   listByGroup,
@@ -105,10 +106,24 @@ export function Sidebar() {
     }
   };
 
+  const handleNewFolder = async () => {
+    const name = await dialog.prompt({
+      title: 'Yeni klasör',
+      label: 'Klasör adı (istasyon)',
+      placeholder: 'örn. ras-paketleme-1',
+    });
+    if (!name) return;
+    try {
+      createEmptyGroup(name);
+    } catch (err) {
+      toast.error((err as Error).message);
+    }
+  };
+
   const handleClearLibrary = async () => {
     const ok = await dialog.confirm({
       title: 'Kütüphaneyi temizle',
-      message: `${fileCount} dosya · ${groups.length} istasyon kalıcı olarak silinecek. Emin misin?`,
+      message: `${fileCount} dosya · ${groups.length} klasör kalıcı olarak silinecek. Emin misin?`,
       confirmText: 'Hepsini Sil',
       danger: true,
     });
@@ -122,8 +137,8 @@ export function Sidebar() {
 
   const handleRenameGroup = async (oldName: string) => {
     const next = await dialog.prompt({
-      title: 'İstasyonu yeniden adlandır',
-      label: 'Yeni istasyon adı',
+      title: 'Klasörü yeniden adlandır',
+      label: 'Yeni klasör adı',
       defaultValue: oldName,
     });
     if (!next || next === oldName) return;
@@ -136,11 +151,11 @@ export function Sidebar() {
 
   const handleDeleteGroup = async (name: string, count: number) => {
     const ok = await dialog.confirm({
-      title: 'İstasyonu sil',
+      title: 'Klasörü sil',
       message:
         count > 0
-          ? `"${name}" istasyonu ve içindeki ${count} dosya silinecek. Emin misin?`
-          : `Boş "${name}" istasyonu silinsin mi?`,
+          ? `📁 "${name}" klasörü ve içindeki ${count} dosya silinecek. Emin misin?`
+          : `Boş "${name}" klasörü silinsin mi?`,
       confirmText: 'Sil',
       danger: true,
     });
@@ -175,8 +190,8 @@ export function Sidebar() {
 
   const handleMoveFile = async (entry: LibraryEntry) => {
     const target = await dialog.prompt({
-      title: 'Başka istasyona taşı',
-      label: `"${entry.fileName}.xml" hangi istasyona taşınsın?`,
+      title: 'Başka klasöre taşı',
+      label: `"${entry.fileName}.xml" hangi klasöre taşınsın?`,
       defaultValue: entry.group,
     });
     if (!target || target === entry.group) return;
@@ -212,31 +227,9 @@ export function Sidebar() {
     groupFileInputRef.current?.click();
   };
 
-  // Standalone XML upload — load a file into the editor (not yet in the
-  // library). User edits it, then ⤓ Kaydet writes it to a station.
-  const xmlUploadRef = useRef<HTMLInputElement>(null);
-  const handleUploadXmlChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) {
-      e.target.value = '';
-      return;
-    }
-    try {
-      const text = await file.text();
-      const parsed = parseLayoutFromXml(text);
-      const name = extractFileName(file.name) || parsed.stationName || 'untitled';
-      parsed.stationName = name;
-      setLayout(parsed);
-      setMode(inferGeometryMode(parsed.metadata.surfaceType));
-      setCurrentEntryId(null);
-      toast.info(`"${name}.xml" yüklendi. Düzenle, sonra ⤓ Kaydet ile kütüphaneye ekle.`);
-    } catch (err) {
-      toast.error(`XML yüklenemedi: ${(err as Error).message}`);
-    } finally {
-      e.target.value = '';
-    }
-  };
-
+  // Upload an XML into a specific folder. The parsed layout carries its cell
+  // names (the <Cell Name="..."> attributes), so the file loads WITH its göz
+  // adları intact, gets saved under the folder, and becomes active.
   const handleGroupFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     const targetGroup = targetGroupRef.current;
@@ -259,7 +252,10 @@ export function Sidebar() {
         xml: serializeLayoutToXml(parsed),
       });
       setCurrentEntryId(saved.id);
-      toast.success(`"${fileName}.xml" → ${targetGroup} altına eklendi.`);
+      const named = parsed.cells.filter((c) => c.name.trim() !== '').length;
+      toast.success(
+        `"${fileName}.xml" → 📁 ${targetGroup} (${parsed.cells.length} göz, ${named} adlı) yüklendi.`,
+      );
     } catch (err) {
       toast.error(`XML yüklenemedi: ${(err as Error).message}`);
     } finally {
@@ -303,29 +299,13 @@ export function Sidebar() {
       <aside className="h-full overflow-y-auto bg-zinc-900/30 border-r border-zinc-800/80">
         <div className="p-5 space-y-5">
           {!hasLayout && (
-            <div className="rounded-md border border-dashed border-zinc-800/80 bg-zinc-950/40 px-3 py-5 text-center space-y-3">
-              <div>
-                <div className="text-zinc-500 text-2xl leading-none mb-1.5">⌗</div>
-                <div className="text-[11px] text-zinc-500 leading-snug">
-                  Düzenlemek için bir dosya aç. Mevcut bir XML'i yükle, sıfırdan oluştur ya da
-                  aşağıdaki kütüphaneden bir kayda tıkla.
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => xmlUploadRef.current?.click()}
-                  className="px-3 py-2 text-xs font-semibold rounded-md border border-zinc-700/60 bg-zinc-800/60 hover:bg-zinc-700/60 text-zinc-100"
-                >
-                  ⬆ XML Yükle
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openNewFile()}
-                  className="px-3 py-2 text-xs font-semibold rounded-md border border-emerald-500/40 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200"
-                >
-                  + Yeni Dosya
-                </button>
+            <div className="rounded-md border border-dashed border-zinc-800/80 bg-zinc-950/40 px-3 py-5 text-center">
+              <div className="text-zinc-500 text-2xl leading-none mb-1.5">📁</div>
+              <div className="text-[11px] text-zinc-500 leading-snug">
+                Düzenlemek için aşağıdaki kütüphaneden bir dosyaya tıkla. Önce{' '}
+                <span className="text-emerald-400/90">+ Klasör</span> ile klasör aç, sonra içine{' '}
+                <span className="text-zinc-300">+ Dosya</span> ekle ya da{' '}
+                <span className="text-zinc-300">⬆</span> ile XML yükle.
               </div>
             </div>
           )}
@@ -512,7 +492,7 @@ export function Sidebar() {
                 Kütüphane{' '}
                 <span className="text-zinc-500 font-normal">
                   ({fileCount} dosya
-                  {groups.length > 0 ? ` · ${groups.length} istasyon` : ''})
+                  {groups.length > 0 ? ` · ${groups.length} klasör` : ''})
                 </span>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
@@ -528,22 +508,22 @@ export function Sidebar() {
                 )}
                 <button
                   type="button"
-                  onClick={() => openNewFile()}
-                  title="Yeni dosya oluştur (isim + pod/rebin)"
+                  onClick={handleNewFolder}
+                  title="Yeni klasör (istasyon) oluştur"
                   className="text-[11px] px-2 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 border border-emerald-500/40 font-medium"
                 >
-                  + Yeni Dosya
+                  + Klasör
                 </button>
               </div>
             </div>
             {groups.length === 0 ? (
               <div className="rounded-md border border-dashed border-zinc-800/80 bg-zinc-950/40 px-3 py-4 text-center">
                 <div className="text-[11px] text-zinc-500 leading-snug">
-                  Henüz kayıt yok.
+                  Henüz klasör yok.
                   <br />
-                  <span className="text-emerald-400/90">+ Yeni Dosya</span> ile isim ve pod/rebin
-                  seçip oluştur, ya da <span className="text-zinc-300">XML Aç</span> ile mevcut bir
-                  dosyayı yükle.
+                  <span className="text-emerald-400/90">+ Klasör</span> ile bir klasör aç (örn.
+                  ras-paketleme-1), sonra içine <span className="text-zinc-300">+ Dosya</span> ekle
+                  ya da <span className="text-zinc-300">⬆ Yükle</span> ile XML at.
                 </div>
               </div>
             ) : (
@@ -577,16 +557,24 @@ export function Sidebar() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleAddFileToGroup(group)}
-                          title="Bu istasyona dosya ekle"
-                          className="px-1.5 text-emerald-400/70 hover:text-emerald-300 text-[11px]"
+                          onClick={() => openNewFile(group)}
+                          title="Bu klasörde yeni dosya oluştur"
+                          className="px-1.5 text-emerald-400/70 hover:text-emerald-300 text-[11px] font-medium"
                         >
-                          + XML
+                          + Dosya
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleAddFileToGroup(group)}
+                          title="Bu klasöre XML yükle"
+                          className="px-1 text-zinc-500 hover:text-emerald-300 text-[11px]"
+                        >
+                          ⬆
                         </button>
                         <button
                           type="button"
                           onClick={() => handleRenameGroup(group)}
-                          title="İstasyonu yeniden adlandır"
+                          title="Klasörü yeniden adlandır"
                           className="px-1 text-zinc-600 hover:text-zinc-300 text-[11px]"
                         >
                           ✎
@@ -594,7 +582,7 @@ export function Sidebar() {
                         <button
                           type="button"
                           onClick={() => handleDeleteGroup(group, entries.length)}
-                          title="İstasyonu sil"
+                          title="Klasörü sil"
                           className="px-1 text-zinc-600 hover:text-red-300 text-[11px]"
                         >
                           ✕
@@ -691,13 +679,6 @@ export function Sidebar() {
           accept=".xml,application/xml,text/xml"
           className="hidden"
           onChange={handleGroupFileChange}
-        />
-        <input
-          ref={xmlUploadRef}
-          type="file"
-          accept=".xml,application/xml,text/xml"
-          className="hidden"
-          onChange={handleUploadXmlChange}
         />
       </aside>
 

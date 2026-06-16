@@ -1,18 +1,10 @@
-import { useId, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { makeEmptyLayout } from '../../lib/defaults';
-import {
-  type GeometryMode,
-  findByName,
-  flushLibrary,
-  listByGroup,
-  saveFile,
-} from '../../lib/library';
+import { type GeometryMode, findByName, flushLibrary, saveFile } from '../../lib/library';
 import { useLayoutStore } from '../../lib/store';
 import { toast } from '../../lib/toast';
 import { serializeLayoutToXml } from '../../lib/xml';
 import { GhostButton, Modal, PrimaryButton } from '../Modal';
-
-const LAST_GROUP_KEY = 'lumo-last-group';
 
 /** Common grid presets shown as quick-pick chips (label shows total cells). */
 const QUICK_GRIDS: { rows: number; cols: number }[] = [
@@ -29,27 +21,23 @@ function clampInt(v: string): number {
 }
 
 /**
- * Create a brand-new layout file: pick the station, file name, and pod/rebin
- * mode. A default grid is generated (cells auto-named), saved to the library,
- * and loaded into the editor — ready for the user to map / rename cells.
+ * Create a brand-new layout file INSIDE a given folder (the folder is fixed —
+ * library flow is always folder-first). Name the file, pick the grid size and
+ * pod/rebin; a default grid is generated (cells auto-named), saved under the
+ * folder, and loaded into the editor.
  */
 export function NewFileDialog({
-  defaultGroup = '',
+  defaultGroup,
   onClose,
 }: {
-  defaultGroup?: string;
+  defaultGroup: string;
   onClose: () => void;
 }) {
   const setLayout = useLayoutStore((s) => s.setLayout);
   const setMode = useLayoutStore((s) => s.setGeometryMode);
   const setCurrentEntryId = useLayoutStore((s) => s.setCurrentEntryId);
 
-  const lastGroup =
-    defaultGroup ||
-    (typeof window !== 'undefined' && window.localStorage.getItem(LAST_GROUP_KEY)) ||
-    '';
-
-  const [group, setGroup] = useState(lastGroup);
+  const group = defaultGroup.trim();
   const [fileName, setFileName] = useState('');
   const [mode, setLocalMode] = useState<GeometryMode>('rebin');
   const [rows, setRows] = useState(6);
@@ -57,14 +45,9 @@ export function NewFileDialog({
   const [busy, setBusy] = useState(false);
 
   const totalCells = rows * cols;
-
-  const groupListId = useId();
-  const existingGroups = useMemo(() => listByGroup().map((g) => g.group), []);
-
-  const trimmedGroup = group.trim();
   const trimmedFile = fileName.trim();
-  const canSave = trimmedGroup !== '' && trimmedFile !== '';
-  const willOverwrite = canSave && findByName(trimmedGroup, trimmedFile) !== null;
+  const canSave = group !== '' && trimmedFile !== '';
+  const willOverwrite = canSave && findByName(group, trimmedFile) !== null;
 
   const handleCreate = async () => {
     if (!canSave || busy) return;
@@ -75,12 +58,13 @@ export function NewFileDialog({
       setLayout(fresh);
       setMode(mode);
       const xml = serializeLayoutToXml(fresh);
-      const saved = saveFile({ group: trimmedGroup, fileName: trimmedFile, mode, xml });
+      const saved = saveFile({ group, fileName: trimmedFile, mode, xml });
       setCurrentEntryId(saved.id);
-      window.localStorage.setItem(LAST_GROUP_KEY, trimmedGroup);
       const ok = await flushLibrary();
       if (ok) {
-        toast.success(`"${trimmedFile}.xml" (${mode}) oluşturuldu — hücreleri düzenleyebilirsin.`);
+        toast.success(
+          `"${trimmedFile}.xml" → 📁 ${group} (${mode}, ${totalCells} göz) oluşturuldu.`,
+        );
         onClose();
       } else {
         toast.error('Oluşturuldu ama sunucuya yazılamadı — tekrar dene.');
@@ -104,25 +88,12 @@ export function NewFileDialog({
   return (
     <Modal title="Yeni Dosya" onClose={onClose} footer={footer}>
       <div className="space-y-4">
+        {/* Target folder — fixed (you clicked + Dosya inside this folder). */}
         <div>
-          <label htmlFor="new-group" className="block text-[11px] font-medium text-zinc-300 mb-1">
-            İstasyon
-          </label>
-          <input
-            id="new-group"
-            list={groupListId}
-            value={group}
-            onChange={(e) => setGroup(e.target.value)}
-            placeholder="örn. ras-paketleme-1"
-            // biome-ignore lint/a11y/noAutofocus: focus the first field on open
-            autoFocus
-            className="w-full bg-zinc-950/80 border border-zinc-700/60 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500/60"
-          />
-          <datalist id={groupListId}>
-            {existingGroups.map((g) => (
-              <option key={g} value={g} />
-            ))}
-          </datalist>
+          <div className="block text-[11px] font-medium text-zinc-300 mb-1">Klasör</div>
+          <div className="px-3 py-2 rounded-md bg-zinc-950/60 border border-zinc-800/80 text-sm text-zinc-200">
+            📁 {group}
+          </div>
         </div>
 
         <div>
@@ -141,6 +112,8 @@ export function NewFileDialog({
                 if (e.key === 'Enter') handleCreate();
               }}
               placeholder="ras5"
+              // biome-ignore lint/a11y/noAutofocus: focus the file name on open
+              autoFocus
               className="flex-1 min-w-0 bg-zinc-950/80 px-2.5 py-2 text-sm text-zinc-100 font-mono focus:outline-none"
             />
             <span className="px-2 py-2 text-xs font-mono bg-zinc-950/80 text-zinc-500 border-l border-zinc-700/60 select-none">
@@ -231,11 +204,13 @@ export function NewFileDialog({
 
         <div className="text-[11px] min-h-[16px]">
           {willOverwrite ? (
-            <span className="text-amber-300/90">⚠ Bu dosya zaten var, üstüne yazılacak.</span>
+            <span className="text-amber-300/90">
+              ⚠ 📁 {group} içinde "{trimmedFile}" zaten var, üstüne yazılacak.
+            </span>
           ) : canSave ? (
-            <span className="text-emerald-400/80">Yeni dosya oluşturulacak.</span>
+            <span className="text-emerald-400/80">📁 {group} altına oluşturulacak.</span>
           ) : (
-            <span className="text-zinc-500">İstasyon ve dosya adı gir.</span>
+            <span className="text-zinc-500">Dosya adı gir.</span>
           )}
         </div>
       </div>
