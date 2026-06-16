@@ -205,6 +205,19 @@ export function Toolbar() {
               <span className="text-amber-200 font-semibold truncate">{activeEntry.fileName}</span>
               <span className="text-zinc-400 shrink-0">.xml</span>
             </span>
+          ) : layout.cells.length > 0 ? (
+            <span
+              title="Yüklü ama kütüphaneye kaydedilmedi — ⤓ Kaydet ile ekle"
+              className="ml-1 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono bg-orange-400/10 text-orange-200 border border-orange-400/40 min-w-0"
+            >
+              <span className="text-orange-400 text-[10px]">●</span>
+              <span className="uppercase tracking-wider text-[9px] text-orange-300/70 font-sans font-semibold shrink-0">
+                Kaydedilmedi
+              </span>
+              <span className="text-zinc-400 shrink-0">projector-layout-</span>
+              <span className="text-orange-200 font-semibold truncate">{layout.stationName}</span>
+              <span className="text-zinc-400 shrink-0">.xml</span>
+            </span>
           ) : (
             <span className="ml-1 px-2 py-1 rounded-md text-[11px] font-sans bg-zinc-800/60 text-zinc-500 border border-zinc-700/40 italic shrink-0">
               dosya yüklü değil

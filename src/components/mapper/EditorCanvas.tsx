@@ -12,7 +12,6 @@ import type { Cell, Corner } from '../../lib/types';
  */
 export function EditorCanvas() {
   const layout = useLayoutStore((s) => s.layout);
-  const currentEntryId = useLayoutStore((s) => s.currentEntryId);
   const selectedCellIndex = useLayoutStore((s) => s.selectedCellIndex);
   const selectCell = useLayoutStore((s) => s.selectCell);
 
@@ -42,18 +41,18 @@ export function EditorCanvas() {
     [],
   );
 
-  // Empty state: not inside a file. Editing only makes sense within a loaded
-  // file, so show a placeholder until one is opened or created.
-  if (!currentEntryId) {
+  // Empty state: no layout loaded. Editing only makes sense once a file is
+  // open (uploaded XML, library entry, or a new file), so show a placeholder.
+  if (layout.cells.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="max-w-sm text-center space-y-3">
           <div className="text-zinc-500 text-5xl leading-none">⌗</div>
           <div className="text-zinc-300 text-sm font-medium">Bir dosyada değilsin</div>
           <div className="text-zinc-500 text-[11px] leading-relaxed">
-            Sol panelden <span className="text-emerald-400/90">+ Yeni Dosya</span> oluştur, bir
-            kayda tıkla ya da toolbar'dan <span className="text-zinc-300">XML Aç</span> de. Tüm
-            düzenlemeler açtığın dosyaya işlenir.
+            Sol panelden <span className="text-zinc-300">⬆ XML Yükle</span> de, bir kayda tıkla ya
+            da <span className="text-emerald-400/90">+ Yeni Dosya</span> oluştur. Tüm düzenlemeler
+            açtığın dosyaya işlenir.
           </div>
         </div>
       </div>

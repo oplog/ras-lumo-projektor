@@ -87,6 +87,12 @@ export function Sidebar() {
   // Bulk cell-name dialog (paste/template).
   const [showBulkNames, setShowBulkNames] = useState(false);
 
+  // "In a file" = a layout is loaded (uploaded XML, opened library entry, or a
+  // freshly created file). Editing controls show only then. This is what gates
+  // the empty page — NOT currentEntryId, so an uploaded-but-unsaved XML still
+  // shows up and is editable.
+  const hasLayout = cells.length > 0;
+
   const handleLoadEntry = (entry: LibraryEntry) => {
     try {
       const parsed = parseLayoutFromXml(entry.xml);
@@ -108,7 +114,7 @@ export function Sidebar() {
     });
     if (!ok) return;
     const saved = await clearLibrary();
-    setCurrentEntryId(null);
+    useLayoutStore.getState().resetLayout();
     toast[saved ? 'success' : 'error'](
       saved ? 'Kütüphane temizlendi.' : 'Temizlendi ama sunucuya yazılamadı.',
     );
@@ -191,7 +197,7 @@ export function Sidebar() {
     if (!ok) return;
     try {
       deleteEntry(entry.id);
-      if (currentEntryId === entry.id) setCurrentEntryId(null);
+      if (currentEntryId === entry.id) useLayoutStore.getState().resetLayout();
     } catch (err) {
       toast.error((err as Error).message);
     }
@@ -204,6 +210,31 @@ export function Sidebar() {
   const handleAddFileToGroup = (groupName: string) => {
     targetGroupRef.current = groupName;
     groupFileInputRef.current?.click();
+  };
+
+  // Standalone XML upload — load a file into the editor (not yet in the
+  // library). User edits it, then ⤓ Kaydet writes it to a station.
+  const xmlUploadRef = useRef<HTMLInputElement>(null);
+  const handleUploadXmlChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) {
+      e.target.value = '';
+      return;
+    }
+    try {
+      const text = await file.text();
+      const parsed = parseLayoutFromXml(text);
+      const name = extractFileName(file.name) || parsed.stationName || 'untitled';
+      parsed.stationName = name;
+      setLayout(parsed);
+      setMode(inferGeometryMode(parsed.metadata.surfaceType));
+      setCurrentEntryId(null);
+      toast.info(`"${name}.xml" yüklendi. Düzenle, sonra ⤓ Kaydet ile kütüphaneye ekle.`);
+    } catch (err) {
+      toast.error(`XML yüklenemedi: ${(err as Error).message}`);
+    } finally {
+      e.target.value = '';
+    }
   };
 
   const handleGroupFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -271,20 +302,37 @@ export function Sidebar() {
     <div className="relative shrink-0 h-full" style={{ width }}>
       <aside className="h-full overflow-y-auto bg-zinc-900/30 border-r border-zinc-800/80">
         <div className="p-5 space-y-5">
-          {!currentEntryId && (
-            <div className="rounded-md border border-dashed border-zinc-800/80 bg-zinc-950/40 px-3 py-5 text-center">
-              <div className="text-zinc-500 text-2xl leading-none mb-1.5">⌗</div>
-              <div className="text-[11px] text-zinc-500 leading-snug">
-                Bir dosyada değilsin. Aşağıdan{' '}
-                <span className="text-emerald-400/90">+ Yeni Dosya</span> oluştur ya da bir kayda
-                tıkla — düzenleme ayarları ancak o zaman gelir.
+          {!hasLayout && (
+            <div className="rounded-md border border-dashed border-zinc-800/80 bg-zinc-950/40 px-3 py-5 text-center space-y-3">
+              <div>
+                <div className="text-zinc-500 text-2xl leading-none mb-1.5">⌗</div>
+                <div className="text-[11px] text-zinc-500 leading-snug">
+                  Düzenlemek için bir dosya aç. Mevcut bir XML'i yükle, sıfırdan oluştur ya da
+                  aşağıdaki kütüphaneden bir kayda tıkla.
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => xmlUploadRef.current?.click()}
+                  className="px-3 py-2 text-xs font-semibold rounded-md border border-zinc-700/60 bg-zinc-800/60 hover:bg-zinc-700/60 text-zinc-100"
+                >
+                  ⬆ XML Yükle
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openNewFile()}
+                  className="px-3 py-2 text-xs font-semibold rounded-md border border-emerald-500/40 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200"
+                >
+                  + Yeni Dosya
+                </button>
               </div>
             </div>
           )}
 
-          {/* Editing controls only matter inside a file — everything here writes
-              to the active library entry. */}
-          {currentEntryId && (
+          {/* Editing controls only matter inside a loaded file — everything here
+              writes to the active layout. */}
+          {hasLayout && (
             <>
               {/* Display picker — XML's <ScreenConfiguration DeviceName=...> */}
               <DisplayPicker onCommit={saveCurrentToLibrary} />
@@ -580,8 +628,8 @@ export function Sidebar() {
             )}
           </div>
 
-          {/* Cell name list — only inside a file */}
-          {currentEntryId && (
+          {/* Cell name list — only inside a loaded file */}
+          {hasLayout && (
             <div className="pt-4 border-t border-zinc-800/60">
               <div className="flex items-center justify-between mb-2 gap-2">
                 <div className="text-xs font-semibold text-zinc-300">
@@ -643,6 +691,13 @@ export function Sidebar() {
           accept=".xml,application/xml,text/xml"
           className="hidden"
           onChange={handleGroupFileChange}
+        />
+        <input
+          ref={xmlUploadRef}
+          type="file"
+          accept=".xml,application/xml,text/xml"
+          className="hidden"
+          onChange={handleUploadXmlChange}
         />
       </aside>
 
