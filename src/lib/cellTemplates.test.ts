@@ -56,23 +56,32 @@ describe('toWLabel / applyWPrefix', () => {
 });
 
 describe('rebinSplitLabels', () => {
-  it('splits left/right by column, numbering each half from 01', () => {
+  it('splits left/right by column, numbering each half from 01 (labels verbatim)', () => {
     // 2 rows × 4 cols, row-major → split at col 2
     const cols = [0, 1, 2, 3, 0, 1, 2, 3];
-    expect(rebinSplitLabels(cols, 'F', 'E')).toEqual([
+    expect(rebinSplitLabels(cols, 'W', 'E')).toEqual([
+      'W-01',
+      'W-02',
+      'E-01',
+      'E-02',
+      'W-03',
+      'W-04',
+      'E-03',
+      'E-04',
+    ]);
+  });
+
+  it('uses multi-char labels verbatim (e.g. "W-F")', () => {
+    expect(rebinSplitLabels([0, 1, 2, 3], 'W-F', 'W-E')).toEqual([
       'W-F-01',
       'W-F-02',
       'W-E-01',
       'W-E-02',
-      'W-F-03',
-      'W-F-04',
-      'W-E-03',
-      'W-E-04',
     ]);
   });
 
-  it('uppercases letters and honours a custom split point', () => {
-    expect(rebinSplitLabels([0, 1, 2], 'a', 'b', 1)).toEqual(['W-A-01', 'W-B-01', 'W-B-02']);
+  it('uppercases labels and honours a custom split point', () => {
+    expect(rebinSplitLabels([0, 1, 2], 'a', 'b', 1)).toEqual(['A-01', 'B-01', 'B-02']);
   });
 
   it('returns empty for no cells', () => {

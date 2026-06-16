@@ -35,7 +35,7 @@ export function CellNamesDialog({
       .join('\n'),
   );
   const [templates, setTemplates] = useState<CellTemplate[]>(() => allTemplates());
-  const [leftLetter, setLeftLetter] = useState('F');
+  const [leftLetter, setLeftLetter] = useState('W');
   const [rightLetter, setRightLetter] = useState('E');
 
   const generateRebinSplit = () => {
@@ -169,28 +169,28 @@ export function CellNamesDialog({
           <input
             value={leftLetter}
             onChange={(e) => setLeftLetter(e.target.value)}
-            maxLength={2}
-            aria-label="Sol yarı harfi"
-            className="w-9 bg-zinc-950/80 border border-zinc-700/60 rounded px-1 py-0.5 text-[11px] text-center font-mono text-zinc-100 focus:outline-none focus:border-emerald-500/60"
+            maxLength={6}
+            aria-label="Sol yarı etiketi"
+            className="w-14 bg-zinc-950/80 border border-zinc-700/60 rounded px-1.5 py-0.5 text-[11px] text-center font-mono text-zinc-100 focus:outline-none focus:border-emerald-500/60"
           />
           <span className="text-[11px] text-zinc-500">sağ</span>
           <input
             value={rightLetter}
             onChange={(e) => setRightLetter(e.target.value)}
-            maxLength={2}
-            aria-label="Sağ yarı harfi"
-            className="w-9 bg-zinc-950/80 border border-zinc-700/60 rounded px-1 py-0.5 text-[11px] text-center font-mono text-zinc-100 focus:outline-none focus:border-emerald-500/60"
+            maxLength={6}
+            aria-label="Sağ yarı etiketi"
+            className="w-14 bg-zinc-950/80 border border-zinc-700/60 rounded px-1.5 py-0.5 text-[11px] text-center font-mono text-zinc-100 focus:outline-none focus:border-emerald-500/60"
           />
           <button
             type="button"
             onClick={generateRebinSplit}
-            title="Sol yarı = W-{sol}-NN, sağ yarı = W-{sağ}-NN olarak üret"
+            title="Sol yarı = {sol}-NN, sağ yarı = {sağ}-NN olarak üret"
             className="text-[11px] px-2 py-0.5 rounded-md border border-emerald-500/40 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 font-medium"
           >
             Oluştur
           </button>
           <span className="text-[10px] text-zinc-500">
-            → W-{leftLetter || 'F'}-.. / W-{rightLetter || 'E'}-..
+            → {(leftLetter || 'W').toUpperCase()}-01.. / {(rightLetter || 'E').toUpperCase()}-01..
           </span>
         </div>
 
