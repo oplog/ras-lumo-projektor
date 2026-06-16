@@ -12,6 +12,14 @@ routes = [
 directory = "./dist"
 binding = "ASSETS"
 
+# Primary store: D1 (SQLite). Holds the layout library + an audit log of every
+# change so nothing is silently lost.
+[[d1_databases]]
+binding = "DB"
+database_name = "tarqan-lumo-projeksiyon-db"
+database_id = "ad699e14-cc3b-415a-ac2b-10460c0df804"
+
+# Kept for one-off backups / legacy import only — no longer the source of truth.
 [[r2_buckets]]
 binding = "LIBRARY"
 bucket_name = "tarqan-lumo-projeksiyon-library"
