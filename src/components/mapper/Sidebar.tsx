@@ -364,9 +364,16 @@ export function Sidebar() {
                       >
                         Rebin arası boşluk
                       </label>
-                      <span className="text-[11px] font-mono text-amber-300 tabular-nums">
-                        {gapFactor.toFixed(2)}×
-                      </span>
+                      <NumberField
+                        value={gapFactor}
+                        onChange={setGapFactor}
+                        onCommit={saveAfterGap}
+                        min={0}
+                        max={2}
+                        step={0.05}
+                        suffix="×"
+                        widthClass="w-14"
+                      />
                     </div>
                     <input
                       id="rebin-gap-factor"
@@ -395,9 +402,16 @@ export function Sidebar() {
                     <label htmlFor="cell-inset" className="text-[11px] font-medium text-zinc-300">
                       Hücre Sıkılığı
                     </label>
-                    <span className="text-[11px] font-mono text-amber-300 tabular-nums">
-                      {(cellInset * 100).toFixed(0)}%
-                    </span>
+                    <NumberField
+                      value={Math.round(cellInset * 100)}
+                      onChange={(p) => setCellInset(p / 100)}
+                      onCommit={saveAfterInset}
+                      min={0}
+                      max={40}
+                      step={1}
+                      suffix="%"
+                      widthClass="w-14"
+                    />
                   </div>
                   <input
                     id="cell-inset"
@@ -430,10 +444,15 @@ export function Sidebar() {
                       <label htmlFor="grid-offset-x" className="text-[10px] text-zinc-400">
                         Yatay
                       </label>
-                      <span className="text-[10px] font-mono text-amber-300 tabular-nums">
-                        {gridOffsetX > 0 ? '+' : ''}
-                        {gridOffsetX} px
-                      </span>
+                      <NumberField
+                        value={gridOffsetX}
+                        onChange={(v) => setGridOffset('x', v)}
+                        onCommit={saveAfterInset}
+                        min={-200}
+                        max={200}
+                        step={1}
+                        suffix="px"
+                      />
                     </div>
                     <input
                       id="grid-offset-x"
@@ -454,10 +473,15 @@ export function Sidebar() {
                       <label htmlFor="grid-offset-y" className="text-[10px] text-zinc-400">
                         Dikey
                       </label>
-                      <span className="text-[10px] font-mono text-amber-300 tabular-nums">
-                        {gridOffsetY > 0 ? '+' : ''}
-                        {gridOffsetY} px
-                      </span>
+                      <NumberField
+                        value={gridOffsetY}
+                        onChange={(v) => setGridOffset('y', v)}
+                        onCommit={saveAfterInset}
+                        min={-200}
+                        max={200}
+                        step={1}
+                        suffix="px"
+                      />
                     </div>
                     <input
                       id="grid-offset-y"
@@ -793,6 +817,77 @@ function extractFileName(filename: string): string {
 }
 
 /**
+ * Numeric input that you can actually clear and retype. Keeps a local string
+ * draft (so an empty/partial value doesn't snap back), pushes valid values up
+ * live, and clamps to [min, max] on blur. Fixes the "can't delete the 1" bug.
+ */
+function NumberField({
+  value,
+  onChange,
+  onCommit,
+  min,
+  max,
+  step = 1,
+  suffix,
+  widthClass = 'w-16',
+}: {
+  value: number;
+  onChange: (n: number) => void;
+  onCommit?: () => void;
+  min: number;
+  max: number;
+  step?: number;
+  suffix?: string;
+  widthClass?: string;
+}) {
+  const [draft, setDraft] = useState(() => String(value));
+  const lastValue = useRef(value);
+  useEffect(() => {
+    if (lastValue.current !== value) {
+      lastValue.current = value;
+      setDraft(String(value));
+    }
+  }, [value]);
+  const clamp = (n: number) => Math.max(min, Math.min(max, n));
+  const commit = () => {
+    const parsed = Number(draft);
+    const v = draft.trim() === '' || !Number.isFinite(parsed) ? clamp(0) : clamp(parsed);
+    lastValue.current = v;
+    setDraft(String(v));
+    onChange(v);
+    onCommit?.();
+  };
+  return (
+    <span className="inline-flex items-center gap-1">
+      <input
+        type="number"
+        min={min}
+        max={max}
+        step={step}
+        value={draft}
+        onFocus={(e) => e.currentTarget.select()}
+        onChange={(e) => {
+          const raw = e.target.value;
+          setDraft(raw);
+          if (raw === '' || raw === '-') return;
+          const n = Number(raw);
+          if (Number.isFinite(n)) {
+            lastValue.current = clamp(n);
+            onChange(clamp(n));
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') e.currentTarget.blur();
+        }}
+        onBlur={commit}
+        className={`${widthClass} bg-zinc-950/80 border border-zinc-700/60 rounded px-1.5 py-0.5 text-[11px] text-right font-mono tabular-nums text-zinc-100 focus:outline-none focus:border-amber-400/60`}
+      />
+      {suffix && <span className="text-[10px] text-zinc-500">{suffix}</span>}
+    </span>
+  );
+}
+
+/**
  * Compact editor for `\\.\DISPLAYn`. Prefix stays read-only (RAS demands
  * the exact `\\.\DISPLAY` shape); only the trailing integer is editable.
  */
@@ -800,6 +895,28 @@ function DisplayPicker({ onCommit }: { onCommit: () => void }) {
   const deviceName = useLayoutStore((s) => s.layout.screen.deviceName);
   const updateScreen = useLayoutStore((s) => s.updateScreen);
   const { prefix, n } = splitDeviceName(deviceName);
+
+  // Draft string so the field can be cleared and retyped (fixes "the 1 won't
+  // delete"). Live-updates the device name on a valid number; clamps on blur.
+  const [draft, setDraft] = useState(String(n));
+  const lastN = useRef(n);
+  useEffect(() => {
+    if (lastN.current !== n) {
+      lastN.current = n;
+      setDraft(String(n));
+    }
+  }, [n]);
+  const commit = () => {
+    const parsed = Number(draft);
+    const v =
+      draft.trim() === '' || !Number.isFinite(parsed)
+        ? 1
+        : Math.max(1, Math.min(99, Math.floor(parsed)));
+    lastN.current = v;
+    setDraft(String(v));
+    updateScreen({ deviceName: `${prefix}${v}` });
+    onCommit();
+  };
 
   return (
     <div className="rounded-md border border-zinc-800/70 bg-zinc-900/40 px-2.5 py-2">
@@ -820,14 +937,23 @@ function DisplayPicker({ onCommit }: { onCommit: () => void }) {
           type="number"
           min={1}
           max={99}
-          value={n}
+          value={draft}
           onFocus={(e) => e.currentTarget.select()}
           onChange={(e) => {
-            const raw = Number(e.target.value);
-            const next = Number.isFinite(raw) && raw >= 1 ? Math.min(99, Math.floor(raw)) : 1;
-            updateScreen({ deviceName: `${prefix}${next}` });
+            const raw = e.target.value;
+            setDraft(raw);
+            if (raw === '') return;
+            const num = Number(raw);
+            if (Number.isFinite(num) && num >= 1) {
+              const v = Math.min(99, Math.floor(num));
+              lastN.current = v;
+              updateScreen({ deviceName: `${prefix}${v}` });
+            }
           }}
-          onBlur={onCommit}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') e.currentTarget.blur();
+          }}
+          onBlur={commit}
           className="flex-1 bg-zinc-950/80 px-2.5 py-1.5 text-sm text-zinc-100 font-mono focus:outline-none w-16"
         />
       </div>
