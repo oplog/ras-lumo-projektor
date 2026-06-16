@@ -8,7 +8,9 @@ CREATE TABLE IF NOT EXISTS entries (
   file_name  TEXT NOT NULL,
   mode       TEXT NOT NULL DEFAULT 'pod' CHECK (mode IN ('pod', 'rebin')),
   xml        TEXT NOT NULL,
-  saved_at   INTEGER NOT NULL
+  saved_at   INTEGER NOT NULL,
+  -- Per-file slider settings (offset/inset/gap) as JSON; not part of the XML.
+  settings   TEXT
 );
 
 -- One file per (station, name): enforces the upsert-by-name rule at the DB level.
