@@ -5,6 +5,7 @@ import {
   applyWPrefix,
   deleteCustomTemplate,
   parseCellNames,
+  rebinSplitLabels,
   saveCustomTemplate,
 } from '../../lib/cellTemplates';
 import { dialog } from '../../lib/dialog';
@@ -34,6 +35,19 @@ export function CellNamesDialog({
       .join('\n'),
   );
   const [templates, setTemplates] = useState<CellTemplate[]>(() => allTemplates());
+  const [leftLetter, setLeftLetter] = useState('F');
+  const [rightLetter, setRightLetter] = useState('E');
+
+  const generateRebinSplit = () => {
+    const cells = useLayoutStore.getState().layout.cells;
+    setText(
+      rebinSplitLabels(
+        cells.map((c) => c.columnIndex),
+        leftLetter,
+        rightLetter,
+      ).join('\n'),
+    );
+  };
 
   const names = useMemo(() => parseCellNames(text), [text]);
   const match = names.length === cellCount;
@@ -146,6 +160,38 @@ export function CellNamesDialog({
           >
             ↑↓ Ters çevir
           </button>
+        </div>
+
+        {/* Rebin: iki yarım, her yarıya ayrı harf (sol / sağ) */}
+        <div className="flex flex-wrap items-center gap-1.5 rounded-md border border-zinc-800/80 bg-zinc-950/40 px-2 py-1.5">
+          <span className="text-[11px] text-zinc-400 mr-0.5">Rebin böl:</span>
+          <span className="text-[11px] text-zinc-500">sol</span>
+          <input
+            value={leftLetter}
+            onChange={(e) => setLeftLetter(e.target.value)}
+            maxLength={2}
+            aria-label="Sol yarı harfi"
+            className="w-9 bg-zinc-950/80 border border-zinc-700/60 rounded px-1 py-0.5 text-[11px] text-center font-mono text-zinc-100 focus:outline-none focus:border-emerald-500/60"
+          />
+          <span className="text-[11px] text-zinc-500">sağ</span>
+          <input
+            value={rightLetter}
+            onChange={(e) => setRightLetter(e.target.value)}
+            maxLength={2}
+            aria-label="Sağ yarı harfi"
+            className="w-9 bg-zinc-950/80 border border-zinc-700/60 rounded px-1 py-0.5 text-[11px] text-center font-mono text-zinc-100 focus:outline-none focus:border-emerald-500/60"
+          />
+          <button
+            type="button"
+            onClick={generateRebinSplit}
+            title="Sol yarı = W-{sol}-NN, sağ yarı = W-{sağ}-NN olarak üret"
+            className="text-[11px] px-2 py-0.5 rounded-md border border-emerald-500/40 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 font-medium"
+          >
+            Oluştur
+          </button>
+          <span className="text-[10px] text-zinc-500">
+            → W-{leftLetter || 'F'}-.. / W-{rightLetter || 'E'}-..
+          </span>
         </div>
 
         <textarea

@@ -63,6 +63,37 @@ export function applyWPrefix(names: string[]): string[] {
   return names.map(toWLabel);
 }
 
+/**
+ * Rebin labelling: a two-unit rebin splits left/right by column. Cells in the
+ * left half (columnIndex < half) get "W-{leftLetter}-NN", the right half get
+ * "W-{rightLetter}-NN", each numbered from 01 in cell order. Returns one label
+ * per input cell (same order), so it applies positionally.
+ *
+ * `half` defaults to the midpoint of the column range (12 cols → split at 6).
+ */
+export function rebinSplitLabels(
+  columnIndices: number[],
+  leftLetter: string,
+  rightLetter: string,
+  half?: number,
+): string[] {
+  if (columnIndices.length === 0) return [];
+  const maxCol = Math.max(...columnIndices);
+  const mid = half ?? Math.ceil((maxCol + 1) / 2);
+  const L = leftLetter.trim().toUpperCase() || 'F';
+  const R = rightLetter.trim().toUpperCase() || 'E';
+  let l = 0;
+  let r = 0;
+  return columnIndices.map((ci) => {
+    if (ci < mid) {
+      l += 1;
+      return `W-${L}-${String(l).padStart(2, '0')}`;
+    }
+    r += 1;
+    return `W-${R}-${String(r).padStart(2, '0')}`;
+  });
+}
+
 export function listCustomTemplates(): CellTemplate[] {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
