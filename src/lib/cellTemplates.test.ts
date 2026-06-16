@@ -56,10 +56,17 @@ describe('toWLabel / applyWPrefix', () => {
 });
 
 describe('rebinSplitLabels', () => {
-  it('splits left/right by column, numbering each half from 01 (labels verbatim)', () => {
-    // 2 rows × 4 cols, row-major → split at col 2
-    const cols = [0, 1, 2, 3, 0, 1, 2, 3];
-    expect(rebinSplitLabels(cols, 'W', 'E')).toEqual([
+  const grid = (rows: number, cols: number) => {
+    const out: { rowIndex: number; columnIndex: number }[] = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) out.push({ rowIndex: r, columnIndex: c });
+    }
+    return out;
+  };
+
+  it('splits left/right by column, numbering each half row-major from 01', () => {
+    // 2 rows × 4 cols → split at col 2
+    expect(rebinSplitLabels(grid(2, 4), { leftLabel: 'W', rightLabel: 'E' })).toEqual([
       'W-01',
       'W-02',
       'E-01',
@@ -72,7 +79,7 @@ describe('rebinSplitLabels', () => {
   });
 
   it('uses multi-char labels verbatim (e.g. "W-F")', () => {
-    expect(rebinSplitLabels([0, 1, 2, 3], 'W-F', 'W-E')).toEqual([
+    expect(rebinSplitLabels(grid(1, 4), { leftLabel: 'W-F', rightLabel: 'W-E' })).toEqual([
       'W-F-01',
       'W-F-02',
       'W-E-01',
@@ -80,12 +87,34 @@ describe('rebinSplitLabels', () => {
     ]);
   });
 
+  it('reverse numbers a half right-to-left per row (08 başlangıç → terse)', () => {
+    // 1 row × 4 cols, split at 2; left reverse → col0=W-02, col1=W-01
+    expect(
+      rebinSplitLabels(grid(1, 4), { leftLabel: 'W', rightLabel: 'E', leftReverse: true }),
+    ).toEqual(['W-02', 'W-01', 'E-01', 'E-02']);
+  });
+
+  it('8-wide left half reverse starts at 08 on the leftmost cell', () => {
+    const labels = rebinSplitLabels(grid(1, 16), {
+      leftLabel: 'W-D',
+      rightLabel: 'W-C',
+      leftReverse: true,
+    });
+    expect(labels[0]).toBe('W-D-08'); // leftmost
+    expect(labels[7]).toBe('W-D-01'); // last of left half
+    expect(labels[8]).toBe('W-C-01'); // right half stays forward
+  });
+
   it('uppercases labels and honours a custom split point', () => {
-    expect(rebinSplitLabels([0, 1, 2], 'a', 'b', 1)).toEqual(['A-01', 'B-01', 'B-02']);
+    expect(rebinSplitLabels(grid(1, 3), { leftLabel: 'a', rightLabel: 'b', half: 1 })).toEqual([
+      'A-01',
+      'B-01',
+      'B-02',
+    ]);
   });
 
   it('returns empty for no cells', () => {
-    expect(rebinSplitLabels([], 'F', 'E')).toEqual([]);
+    expect(rebinSplitLabels([], { leftLabel: 'W', rightLabel: 'E' })).toEqual([]);
   });
 });
 

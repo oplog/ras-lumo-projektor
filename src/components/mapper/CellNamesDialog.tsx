@@ -37,14 +37,20 @@ export function CellNamesDialog({
   const [templates, setTemplates] = useState<CellTemplate[]>(() => allTemplates());
   const [leftLetter, setLeftLetter] = useState('W');
   const [rightLetter, setRightLetter] = useState('E');
+  const [leftReverse, setLeftReverse] = useState(false);
+  const [rightReverse, setRightReverse] = useState(false);
 
   const generateRebinSplit = () => {
     const cells = useLayoutStore.getState().layout.cells;
     setText(
       rebinSplitLabels(
-        cells.map((c) => c.columnIndex),
-        leftLetter,
-        rightLetter,
+        cells.map((c) => ({ rowIndex: c.rowIndex, columnIndex: c.columnIndex })),
+        {
+          leftLabel: leftLetter,
+          rightLabel: rightLetter,
+          leftReverse,
+          rightReverse,
+        },
       ).join('\n'),
     );
   };
@@ -162,36 +168,61 @@ export function CellNamesDialog({
           </button>
         </div>
 
-        {/* Rebin: iki yarım, her yarıya ayrı harf (sol / sağ) */}
-        <div className="flex flex-wrap items-center gap-1.5 rounded-md border border-zinc-800/80 bg-zinc-950/40 px-2 py-1.5">
-          <span className="text-[11px] text-zinc-400 mr-0.5">Rebin böl:</span>
-          <span className="text-[11px] text-zinc-500">sol</span>
-          <input
-            value={leftLetter}
-            onChange={(e) => setLeftLetter(e.target.value)}
-            maxLength={6}
-            aria-label="Sol yarı etiketi"
-            className="w-14 bg-zinc-950/80 border border-zinc-700/60 rounded px-1.5 py-0.5 text-[11px] text-center font-mono text-zinc-100 focus:outline-none focus:border-emerald-500/60"
-          />
-          <span className="text-[11px] text-zinc-500">sağ</span>
-          <input
-            value={rightLetter}
-            onChange={(e) => setRightLetter(e.target.value)}
-            maxLength={6}
-            aria-label="Sağ yarı etiketi"
-            className="w-14 bg-zinc-950/80 border border-zinc-700/60 rounded px-1.5 py-0.5 text-[11px] text-center font-mono text-zinc-100 focus:outline-none focus:border-emerald-500/60"
-          />
-          <button
-            type="button"
-            onClick={generateRebinSplit}
-            title="Sol yarı = {sol}-NN, sağ yarı = {sağ}-NN olarak üret"
-            className="text-[11px] px-2 py-0.5 rounded-md border border-emerald-500/40 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 font-medium"
-          >
-            Oluştur
-          </button>
-          <span className="text-[10px] text-zinc-500">
-            → {(leftLetter || 'W').toUpperCase()}-01.. / {(rightLetter || 'E').toUpperCase()}-01..
-          </span>
+        {/* Rebin: iki yarım, her yarıya ayrı etiket + opsiyonel ters numara */}
+        <div className="rounded-md border border-zinc-800/80 bg-zinc-950/40 px-2.5 py-2 space-y-1.5">
+          <div className="text-[11px] text-zinc-400">Rebin böl (sol / sağ yarı)</div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] text-zinc-500">sol</span>
+              <input
+                value={leftLetter}
+                onChange={(e) => setLeftLetter(e.target.value)}
+                maxLength={6}
+                aria-label="Sol yarı etiketi"
+                className="w-14 bg-zinc-950/80 border border-zinc-700/60 rounded px-1.5 py-0.5 text-[11px] text-center font-mono text-zinc-100 focus:outline-none focus:border-emerald-500/60"
+              />
+              <label className="flex items-center gap-1 text-[10px] text-zinc-400 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={leftReverse}
+                  onChange={(e) => setLeftReverse(e.target.checked)}
+                  className="accent-emerald-500"
+                />
+                ters
+              </label>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] text-zinc-500">sağ</span>
+              <input
+                value={rightLetter}
+                onChange={(e) => setRightLetter(e.target.value)}
+                maxLength={6}
+                aria-label="Sağ yarı etiketi"
+                className="w-14 bg-zinc-950/80 border border-zinc-700/60 rounded px-1.5 py-0.5 text-[11px] text-center font-mono text-zinc-100 focus:outline-none focus:border-emerald-500/60"
+              />
+              <label className="flex items-center gap-1 text-[10px] text-zinc-400 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rightReverse}
+                  onChange={(e) => setRightReverse(e.target.checked)}
+                  className="accent-emerald-500"
+                />
+                ters
+              </label>
+            </div>
+            <button
+              type="button"
+              onClick={generateRebinSplit}
+              title="Her yarıyı kendi etiketiyle numarala (ters = satırı sağdan sola: 08→01)"
+              className="text-[11px] px-2 py-0.5 rounded-md border border-emerald-500/40 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 font-medium"
+            >
+              Oluştur
+            </button>
+          </div>
+          <div className="text-[10px] text-zinc-500">
+            sol → {(leftLetter || 'W').toUpperCase()}-{leftReverse ? '08…01 (terse)' : '01…'} · sağ
+            → {(rightLetter || 'E').toUpperCase()}-{rightReverse ? '08…01 (terse)' : '01…'}
+          </div>
         </div>
 
         <textarea

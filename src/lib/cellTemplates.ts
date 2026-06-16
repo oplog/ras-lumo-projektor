@@ -63,36 +63,63 @@ export function applyWPrefix(names: string[]): string[] {
   return names.map(toWLabel);
 }
 
+export interface RebinCell {
+  rowIndex: number;
+  columnIndex: number;
+}
+
+export interface RebinSplitOptions {
+  leftLabel: string;
+  rightLabel: string;
+  /** Column at which the right half starts. Default = midpoint of the range. */
+  half?: number;
+  /** Number each row right-to-left for that half (leftmost cell gets the high
+   *  number, e.g. an 8-wide row → 08,07,…,01). */
+  leftReverse?: boolean;
+  rightReverse?: boolean;
+}
+
+/** Assign "{label}-NN" to one half's cells, writing into `out` by original index. */
+function assignSide(
+  cells: RebinCell[],
+  indices: number[],
+  label: string,
+  reverse: boolean,
+  out: string[],
+): void {
+  const ordered = [...indices].sort((a, b) => {
+    const ca = cells[a];
+    const cb = cells[b];
+    if (ca.rowIndex !== cb.rowIndex) return ca.rowIndex - cb.rowIndex;
+    return reverse ? cb.columnIndex - ca.columnIndex : ca.columnIndex - cb.columnIndex;
+  });
+  ordered.forEach((origIdx, i) => {
+    out[origIdx] = `${label}-${String(i + 1).padStart(2, '0')}`;
+  });
+}
+
 /**
  * Rebin labelling: a two-unit rebin splits left/right by column. Cells in the
  * left half (columnIndex < half) get "{leftLabel}-NN", the right half get
- * "{rightLabel}-NN", each numbered from 01 in cell order. Returns one label
- * per input cell (same order), so it applies positionally.
+ * "{rightLabel}-NN", each numbered row-major from 01. With `*Reverse`, that
+ * half is numbered right-to-left within each row (08,07,…). Labels are used
+ * VERBATIM (uppercased): "W" → "W-01", "W-F" → "W-F-01".
  *
- * The labels are used VERBATIM (uppercased): "W" → "W-01", "E" → "E-01",
- * "W-F" → "W-F-01". `half` defaults to the midpoint (16 cols → split at 8).
+ * Returns one label per input cell IN ORIGINAL ORDER (positional apply).
  */
-export function rebinSplitLabels(
-  columnIndices: number[],
-  leftLabel: string,
-  rightLabel: string,
-  half?: number,
-): string[] {
-  if (columnIndices.length === 0) return [];
-  const maxCol = Math.max(...columnIndices);
-  const mid = half ?? Math.ceil((maxCol + 1) / 2);
-  const L = leftLabel.trim().toUpperCase() || 'W';
-  const R = rightLabel.trim().toUpperCase() || 'E';
-  let l = 0;
-  let r = 0;
-  return columnIndices.map((ci) => {
-    if (ci < mid) {
-      l += 1;
-      return `${L}-${String(l).padStart(2, '0')}`;
-    }
-    r += 1;
-    return `${R}-${String(r).padStart(2, '0')}`;
-  });
+export function rebinSplitLabels(cells: RebinCell[], opts: RebinSplitOptions): string[] {
+  if (cells.length === 0) return [];
+  const maxCol = Math.max(...cells.map((c) => c.columnIndex));
+  const mid = opts.half ?? Math.ceil((maxCol + 1) / 2);
+  const L = opts.leftLabel.trim().toUpperCase() || 'W';
+  const R = opts.rightLabel.trim().toUpperCase() || 'E';
+  const leftIdx: number[] = [];
+  const rightIdx: number[] = [];
+  cells.forEach((c, i) => (c.columnIndex < mid ? leftIdx : rightIdx).push(i));
+  const out: string[] = new Array(cells.length);
+  assignSide(cells, leftIdx, L, !!opts.leftReverse, out);
+  assignSide(cells, rightIdx, R, !!opts.rightReverse, out);
+  return out;
 }
 
 export function listCustomTemplates(): CellTemplate[] {
