@@ -11,8 +11,14 @@ export function inferGeometryMode(surfaceType: SurfaceType): GeometryMode {
   return surfaceType === 'PutToLight' || surfaceType === 'PackToLight' ? 'rebin' : 'pod';
 }
 
-/** Sensible empty layout to bootstrap a new mapping session. */
-export function makeEmptyLayout(): Layout {
+/**
+ * Sensible empty layout to bootstrap a new mapping session.
+ *
+ * Pass `{ rows, cols }` to size the grid (uniform columns per row). Total
+ * cell count = rows × cols. Defaults to a small 3×3 so callers that just
+ * want "a blank layout" still work.
+ */
+export function makeEmptyLayout(opts: { rows?: number; cols?: number } = {}): Layout {
   // Default to a horizontal projector geometry that matches the active
   // production setup (1280×800 PutToLight). Users edit the screen panel
   // for vertical / different setups.
@@ -25,8 +31,9 @@ export function makeEmptyLayout(): Layout {
     { x: inset, y: height - inset },
     { x: width - inset, y: height - inset },
   ];
-  const rowCount = 3;
-  const columnsPerRow = [3, 3, 3];
+  const rowCount = Math.max(1, Math.floor(opts.rows ?? 3));
+  const cols = Math.max(1, Math.floor(opts.cols ?? 3));
+  const columnsPerRow = Array.from({ length: rowCount }, () => cols);
 
   return {
     stationName: '',

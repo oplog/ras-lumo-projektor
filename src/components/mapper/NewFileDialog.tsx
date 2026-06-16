@@ -14,6 +14,20 @@ import { GhostButton, Modal, PrimaryButton } from '../Modal';
 
 const LAST_GROUP_KEY = 'lumo-last-group';
 
+/** Common grid presets shown as quick-pick chips (label shows total cells). */
+const QUICK_GRIDS: { rows: number; cols: number }[] = [
+  { rows: 3, cols: 3 },
+  { rows: 6, cols: 8 },
+  { rows: 4, cols: 12 },
+  { rows: 6, cols: 16 },
+];
+
+function clampInt(v: string): number {
+  const n = Math.floor(Number(v));
+  if (!Number.isFinite(n) || n < 1) return 1;
+  return Math.min(50, n);
+}
+
 /**
  * Create a brand-new layout file: pick the station, file name, and pod/rebin
  * mode. A default grid is generated (cells auto-named), saved to the library,
@@ -38,7 +52,11 @@ export function NewFileDialog({
   const [group, setGroup] = useState(lastGroup);
   const [fileName, setFileName] = useState('');
   const [mode, setLocalMode] = useState<GeometryMode>('rebin');
+  const [rows, setRows] = useState(6);
+  const [cols, setCols] = useState(8);
   const [busy, setBusy] = useState(false);
+
+  const totalCells = rows * cols;
 
   const groupListId = useId();
   const existingGroups = useMemo(() => listByGroup().map((g) => g.group), []);
@@ -52,7 +70,7 @@ export function NewFileDialog({
     if (!canSave || busy) return;
     setBusy(true);
     try {
-      const fresh = makeEmptyLayout();
+      const fresh = makeEmptyLayout({ rows, cols });
       fresh.stationName = trimmedFile;
       setLayout(fresh);
       setMode(mode);
@@ -152,8 +170,62 @@ export function NewFileDialog({
           <p className="text-[11px] text-zinc-500 leading-relaxed pt-2">
             {mode === 'pod'
               ? 'Tek yüzlü pod, çapraz projeksiyon.'
-              : 'İki bitişik rebin, ortada direk.'}{' '}
-            Varsayılan grid ve hücre adları otomatik gelir.
+              : 'İki bitişik rebin, ortada direk.'}
+          </p>
+        </div>
+
+        {/* Grid size — total cells = rows × cols */}
+        <div>
+          <div className="block text-[11px] font-medium text-zinc-300 mb-1">
+            Göz sayısı (satır × sütun)
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min={1}
+              max={50}
+              value={rows}
+              onChange={(e) => setRows(clampInt(e.target.value))}
+              aria-label="Satır"
+              className="w-20 bg-zinc-950/80 border border-zinc-700/60 rounded-md px-2 py-2 text-sm text-zinc-100 font-mono text-center focus:outline-none focus:border-emerald-500/60"
+            />
+            <span className="text-zinc-500 text-sm">×</span>
+            <input
+              type="number"
+              min={1}
+              max={50}
+              value={cols}
+              onChange={(e) => setCols(clampInt(e.target.value))}
+              aria-label="Sütun"
+              className="w-20 bg-zinc-950/80 border border-zinc-700/60 rounded-md px-2 py-2 text-sm text-zinc-100 font-mono text-center focus:outline-none focus:border-emerald-500/60"
+            />
+            <span className="text-[11px] text-zinc-400 ml-1">
+              = <span className="text-emerald-300 font-semibold tabular-nums">{totalCells}</span>{' '}
+              göz
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-1.5 pt-2">
+            {QUICK_GRIDS.map((g) => (
+              <button
+                key={`${g.rows}x${g.cols}`}
+                type="button"
+                onClick={() => {
+                  setRows(g.rows);
+                  setCols(g.cols);
+                }}
+                className={`text-[10px] px-2 py-0.5 rounded border ${
+                  rows === g.rows && cols === g.cols
+                    ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-200'
+                    : 'bg-zinc-800/40 border-zinc-700/60 text-zinc-400 hover:bg-zinc-800/60'
+                }`}
+              >
+                {g.rows}×{g.cols} ({g.rows * g.cols})
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-zinc-500 leading-snug pt-1.5">
+            Hücreler ve varsayılan adlar otomatik gelir; sonra ⨳ Toplu Gir ile gözleri
+            isimlendirebilirsin.
           </p>
         </div>
 
