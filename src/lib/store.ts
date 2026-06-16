@@ -84,6 +84,9 @@ interface LayoutState {
   applyHomographyFix: (opts?: { mode?: 'rebin' | 'pod' }) => void;
 
   setCellName: (i: number, name: string) => void;
+  /** Bulk-assign cell names in list order (templates / paste). Extra names are
+   *  ignored; cells past the list keep their current name. */
+  setAllCellNames: (names: string[]) => void;
   moveCellCorner: (cellIdx: number, corner: CornerKey, c: Corner) => void;
 
   applyValidationCount: (count: number) => void;
@@ -377,6 +380,14 @@ export const useLayoutStore = create<LayoutState>()(
         set((s) => {
           const cells = [...s.layout.cells];
           cells[i] = { ...cells[i], name };
+          return { layout: { ...s.layout, cells } };
+        }),
+
+      setAllCellNames: (names) =>
+        set((s) => {
+          const cells = s.layout.cells.map((c, i) =>
+            i < names.length ? { ...c, name: names[i] } : c,
+          );
           return { layout: { ...s.layout, cells } };
         }),
 

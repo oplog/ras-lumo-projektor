@@ -16,6 +16,7 @@ import {
 import { useLayoutStore } from '../../lib/store';
 import { toast } from '../../lib/toast';
 import { parseLayoutFromXml, serializeLayoutToXml } from '../../lib/xml';
+import { CellNamesDialog } from './CellNamesDialog';
 import { NewFileDialog } from './NewFileDialog';
 
 const WIDTH_KEY = 'lumo-sidebar-width';
@@ -83,6 +84,8 @@ export function Sidebar() {
   // New-file dialog (asks name + station + pod/rebin).
   const [newFileGroup, setNewFileGroup] = useState<string | null>(null);
   const openNewFile = (group = '') => setNewFileGroup(group);
+  // Bulk cell-name dialog (paste/template).
+  const [showBulkNames, setShowBulkNames] = useState(false);
 
   const handleLoadEntry = (entry: LibraryEntry) => {
     try {
@@ -562,8 +565,20 @@ export function Sidebar() {
 
           {/* Cell name list */}
           <div className="pt-4 border-t border-zinc-800/60">
-            <div className="text-xs font-semibold text-zinc-300 mb-2">
-              Hücre Adları ({cells.length})
+            <div className="flex items-center justify-between mb-2 gap-2">
+              <div className="text-xs font-semibold text-zinc-300">
+                Hücre Adları ({cells.length})
+              </div>
+              {cells.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowBulkNames(true)}
+                  title="Tüm göz adlarını liste/şablon ile bir kerede gir"
+                  className="text-[11px] px-2 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 border border-emerald-500/40 font-medium"
+                >
+                  ⨳ Toplu Gir
+                </button>
+              )}
             </div>
             {cells.length === 0 ? (
               <div className="text-[11px] text-zinc-600 italic">
@@ -623,6 +638,9 @@ export function Sidebar() {
 
       {newFileGroup !== null && (
         <NewFileDialog defaultGroup={newFileGroup} onClose={() => setNewFileGroup(null)} />
+      )}
+      {showBulkNames && (
+        <CellNamesDialog onClose={() => setShowBulkNames(false)} onApplied={saveCurrentToLibrary} />
       )}
     </div>
   );
