@@ -271,174 +271,191 @@ export function Sidebar() {
     <div className="relative shrink-0 h-full" style={{ width }}>
       <aside className="h-full overflow-y-auto bg-zinc-900/30 border-r border-zinc-800/80">
         <div className="p-5 space-y-5">
-          {/* Display picker — XML's <ScreenConfiguration DeviceName=...> */}
-          <DisplayPicker onCommit={saveCurrentToLibrary} />
+          {!currentEntryId && (
+            <div className="rounded-md border border-dashed border-zinc-800/80 bg-zinc-950/40 px-3 py-5 text-center">
+              <div className="text-zinc-500 text-2xl leading-none mb-1.5">⌗</div>
+              <div className="text-[11px] text-zinc-500 leading-snug">
+                Bir dosyada değilsin. Aşağıdan{' '}
+                <span className="text-emerald-400/90">+ Yeni Dosya</span> oluştur ya da bir kayda
+                tıkla — düzenleme ayarları ancak o zaman gelir.
+              </div>
+            </div>
+          )}
 
-          {/* Geometry mode toggle */}
-          <div>
-            <div className="text-xs font-semibold text-zinc-300 mb-2">Geometri Tipi</div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setMode('pod')}
-                className={`px-3 py-2.5 text-sm font-medium rounded-md border transition ${
-                  mode === 'pod'
-                    ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-200'
-                    : 'bg-zinc-800/40 border-zinc-700/60 text-zinc-400 hover:bg-zinc-800/60'
-                }`}
-              >
-                Pod
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode('rebin')}
-                className={`px-3 py-2.5 text-sm font-medium rounded-md border transition ${
-                  mode === 'rebin'
-                    ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-200'
-                    : 'bg-zinc-800/40 border-zinc-700/60 text-zinc-400 hover:bg-zinc-800/60'
-                }`}
-              >
-                Rebin
-              </button>
-            </div>
-            <div className="text-[11px] text-zinc-500 leading-relaxed pt-2">
-              {mode === 'pod'
-                ? 'Tek yüzlü pod, çapraz projeksiyon. RAS sırası + uniform.'
-                : 'İki bitişik rebin, ortada direk. Canonicalize + asym500.'}
-            </div>
-            {mode === 'rebin' && (
-              <div className="mt-3 rounded-md border border-zinc-800/80 bg-zinc-950/40 px-2.5 py-2">
-                <div className="flex items-center justify-between mb-1">
-                  <label
-                    htmlFor="rebin-gap-factor"
-                    className="text-[11px] font-medium text-zinc-300"
+          {/* Editing controls only matter inside a file — everything here writes
+              to the active library entry. */}
+          {currentEntryId && (
+            <>
+              {/* Display picker — XML's <ScreenConfiguration DeviceName=...> */}
+              <DisplayPicker onCommit={saveCurrentToLibrary} />
+
+              {/* Geometry mode toggle */}
+              <div>
+                <div className="text-xs font-semibold text-zinc-300 mb-2">Geometri Tipi</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setMode('pod')}
+                    className={`px-3 py-2.5 text-sm font-medium rounded-md border transition ${
+                      mode === 'pod'
+                        ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-200'
+                        : 'bg-zinc-800/40 border-zinc-700/60 text-zinc-400 hover:bg-zinc-800/60'
+                    }`}
                   >
-                    Rebin arası boşluk
-                  </label>
-                  <span className="text-[11px] font-mono text-amber-300 tabular-nums">
-                    {gapFactor.toFixed(2)}×
-                  </span>
+                    Pod
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMode('rebin')}
+                    className={`px-3 py-2.5 text-sm font-medium rounded-md border transition ${
+                      mode === 'rebin'
+                        ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-200'
+                        : 'bg-zinc-800/40 border-zinc-700/60 text-zinc-400 hover:bg-zinc-800/60'
+                    }`}
+                  >
+                    Rebin
+                  </button>
                 </div>
-                <input
-                  id="rebin-gap-factor"
-                  type="range"
-                  min="0"
-                  max="2"
-                  step="0.05"
-                  value={gapFactor}
-                  onChange={(e) => setGapFactor(Number(e.target.value))}
-                  onMouseUp={saveAfterGap}
-                  onTouchEnd={saveAfterGap}
-                  onKeyUp={saveAfterGap}
-                  className="w-full accent-amber-400"
-                />
-                <div className="flex items-center justify-between text-[10px] text-zinc-500 font-mono mt-0.5">
-                  <span>0 (yok)</span>
-                  <span>0.5 (default)</span>
-                  <span>2× hücre</span>
+                <div className="text-[11px] text-zinc-500 leading-relaxed pt-2">
+                  {mode === 'pod'
+                    ? 'Tek yüzlü pod, çapraz projeksiyon. RAS sırası + uniform.'
+                    : 'İki bitişik rebin, ortada direk. Canonicalize + asym500.'}
                 </div>
-              </div>
-            )}
+                {mode === 'rebin' && (
+                  <div className="mt-3 rounded-md border border-zinc-800/80 bg-zinc-950/40 px-2.5 py-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <label
+                        htmlFor="rebin-gap-factor"
+                        className="text-[11px] font-medium text-zinc-300"
+                      >
+                        Rebin arası boşluk
+                      </label>
+                      <span className="text-[11px] font-mono text-amber-300 tabular-nums">
+                        {gapFactor.toFixed(2)}×
+                      </span>
+                    </div>
+                    <input
+                      id="rebin-gap-factor"
+                      type="range"
+                      min="0"
+                      max="2"
+                      step="0.05"
+                      value={gapFactor}
+                      onChange={(e) => setGapFactor(Number(e.target.value))}
+                      onMouseUp={saveAfterGap}
+                      onTouchEnd={saveAfterGap}
+                      onKeyUp={saveAfterGap}
+                      className="w-full accent-amber-400"
+                    />
+                    <div className="flex items-center justify-between text-[10px] text-zinc-500 font-mono mt-0.5">
+                      <span>0 (yok)</span>
+                      <span>0.5 (default)</span>
+                      <span>2× hücre</span>
+                    </div>
+                  </div>
+                )}
 
-            {/* Cell inset — shrinks each cell toward its centre */}
-            <div className="mt-3 rounded-md border border-zinc-800/80 bg-zinc-950/40 px-2.5 py-2">
-              <div className="flex items-center justify-between mb-1">
-                <label htmlFor="cell-inset" className="text-[11px] font-medium text-zinc-300">
-                  Hücre Sıkılığı
-                </label>
-                <span className="text-[11px] font-mono text-amber-300 tabular-nums">
-                  {(cellInset * 100).toFixed(0)}%
-                </span>
-              </div>
-              <input
-                id="cell-inset"
-                type="range"
-                min="0"
-                max="0.4"
-                step="0.01"
-                value={cellInset}
-                onChange={(e) => setCellInset(Number(e.target.value))}
-                onMouseUp={saveAfterInset}
-                onTouchEnd={saveAfterInset}
-                onKeyUp={saveAfterInset}
-                className="w-full accent-amber-400"
-              />
-              <p className="text-[10px] text-zinc-500 leading-snug mt-1">
-                Her hücreyi merkeze çeker (boşluk açar).
-              </p>
-            </div>
+                {/* Cell inset — shrinks each cell toward its centre */}
+                <div className="mt-3 rounded-md border border-zinc-800/80 bg-zinc-950/40 px-2.5 py-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <label htmlFor="cell-inset" className="text-[11px] font-medium text-zinc-300">
+                      Hücre Sıkılığı
+                    </label>
+                    <span className="text-[11px] font-mono text-amber-300 tabular-nums">
+                      {(cellInset * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                  <input
+                    id="cell-inset"
+                    type="range"
+                    min="0"
+                    max="0.4"
+                    step="0.01"
+                    value={cellInset}
+                    onChange={(e) => setCellInset(Number(e.target.value))}
+                    onMouseUp={saveAfterInset}
+                    onTouchEnd={saveAfterInset}
+                    onKeyUp={saveAfterInset}
+                    className="w-full accent-amber-400"
+                  />
+                  <p className="text-[10px] text-zinc-500 leading-snug mt-1">
+                    Her hücreyi merkeze çeker (boşluk açar).
+                  </p>
+                </div>
 
-            {/* Grid X/Y offset — nudge whole grid to align projector with bins */}
-            <div className="mt-3 rounded-md border border-zinc-800/80 bg-zinc-950/40 px-2.5 py-2 space-y-2">
-              <div className="text-[11px] font-medium text-zinc-300">
-                Grid Kaydırma
-                <span className="ml-1 text-[10px] text-zinc-500 font-normal">
-                  (yandaki göze taşıyorsa)
-                </span>
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-0.5">
-                  <label htmlFor="grid-offset-x" className="text-[10px] text-zinc-400">
-                    Yatay
-                  </label>
-                  <span className="text-[10px] font-mono text-amber-300 tabular-nums">
-                    {gridOffsetX > 0 ? '+' : ''}
-                    {gridOffsetX} px
-                  </span>
+                {/* Grid X/Y offset — nudge whole grid to align projector with bins */}
+                <div className="mt-3 rounded-md border border-zinc-800/80 bg-zinc-950/40 px-2.5 py-2 space-y-2">
+                  <div className="text-[11px] font-medium text-zinc-300">
+                    Grid Kaydırma
+                    <span className="ml-1 text-[10px] text-zinc-500 font-normal">
+                      (yandaki göze taşıyorsa)
+                    </span>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <label htmlFor="grid-offset-x" className="text-[10px] text-zinc-400">
+                        Yatay
+                      </label>
+                      <span className="text-[10px] font-mono text-amber-300 tabular-nums">
+                        {gridOffsetX > 0 ? '+' : ''}
+                        {gridOffsetX} px
+                      </span>
+                    </div>
+                    <input
+                      id="grid-offset-x"
+                      type="range"
+                      min="-100"
+                      max="100"
+                      step="1"
+                      value={gridOffsetX}
+                      onChange={(e) => setGridOffset('x', Number(e.target.value))}
+                      onMouseUp={saveAfterInset}
+                      onTouchEnd={saveAfterInset}
+                      onKeyUp={saveAfterInset}
+                      className="w-full accent-amber-400"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <label htmlFor="grid-offset-y" className="text-[10px] text-zinc-400">
+                        Dikey
+                      </label>
+                      <span className="text-[10px] font-mono text-amber-300 tabular-nums">
+                        {gridOffsetY > 0 ? '+' : ''}
+                        {gridOffsetY} px
+                      </span>
+                    </div>
+                    <input
+                      id="grid-offset-y"
+                      type="range"
+                      min="-100"
+                      max="100"
+                      step="1"
+                      value={gridOffsetY}
+                      onChange={(e) => setGridOffset('y', Number(e.target.value))}
+                      onMouseUp={saveAfterInset}
+                      onTouchEnd={saveAfterInset}
+                      onKeyUp={saveAfterInset}
+                      className="w-full accent-amber-400"
+                    />
+                  </div>
+                  {(gridOffsetX !== 0 || gridOffsetY !== 0) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setGridOffset('x', 0);
+                        setGridOffset('y', 0);
+                        saveAfterInset();
+                      }}
+                      className="text-[10px] text-zinc-400 hover:text-zinc-200 underline"
+                    >
+                      Sıfırla
+                    </button>
+                  )}
                 </div>
-                <input
-                  id="grid-offset-x"
-                  type="range"
-                  min="-100"
-                  max="100"
-                  step="1"
-                  value={gridOffsetX}
-                  onChange={(e) => setGridOffset('x', Number(e.target.value))}
-                  onMouseUp={saveAfterInset}
-                  onTouchEnd={saveAfterInset}
-                  onKeyUp={saveAfterInset}
-                  className="w-full accent-amber-400"
-                />
               </div>
-              <div>
-                <div className="flex items-center justify-between mb-0.5">
-                  <label htmlFor="grid-offset-y" className="text-[10px] text-zinc-400">
-                    Dikey
-                  </label>
-                  <span className="text-[10px] font-mono text-amber-300 tabular-nums">
-                    {gridOffsetY > 0 ? '+' : ''}
-                    {gridOffsetY} px
-                  </span>
-                </div>
-                <input
-                  id="grid-offset-y"
-                  type="range"
-                  min="-100"
-                  max="100"
-                  step="1"
-                  value={gridOffsetY}
-                  onChange={(e) => setGridOffset('y', Number(e.target.value))}
-                  onMouseUp={saveAfterInset}
-                  onTouchEnd={saveAfterInset}
-                  onKeyUp={saveAfterInset}
-                  className="w-full accent-amber-400"
-                />
-              </div>
-              {(gridOffsetX !== 0 || gridOffsetY !== 0) && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setGridOffset('x', 0);
-                    setGridOffset('y', 0);
-                    saveAfterInset();
-                  }}
-                  className="text-[10px] text-zinc-400 hover:text-zinc-200 underline"
-                >
-                  Sıfırla
-                </button>
-              )}
-            </div>
-          </div>
+            </>
+          )}
 
           {/* Library — groups (stations) holding files */}
           <div className="pt-4 border-t border-zinc-800/60">
@@ -563,60 +580,62 @@ export function Sidebar() {
             )}
           </div>
 
-          {/* Cell name list */}
-          <div className="pt-4 border-t border-zinc-800/60">
-            <div className="flex items-center justify-between mb-2 gap-2">
-              <div className="text-xs font-semibold text-zinc-300">
-                Hücre Adları ({cells.length})
+          {/* Cell name list — only inside a file */}
+          {currentEntryId && (
+            <div className="pt-4 border-t border-zinc-800/60">
+              <div className="flex items-center justify-between mb-2 gap-2">
+                <div className="text-xs font-semibold text-zinc-300">
+                  Hücre Adları ({cells.length})
+                </div>
+                {cells.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowBulkNames(true)}
+                    title="Tüm göz adlarını liste/şablon ile bir kerede gir"
+                    className="text-[11px] px-2 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 border border-emerald-500/40 font-medium"
+                  >
+                    ⨳ Toplu Gir
+                  </button>
+                )}
               </div>
-              {cells.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setShowBulkNames(true)}
-                  title="Tüm göz adlarını liste/şablon ile bir kerede gir"
-                  className="text-[11px] px-2 py-0.5 rounded bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 border border-emerald-500/40 font-medium"
-                >
-                  ⨳ Toplu Gir
-                </button>
+              {cells.length === 0 ? (
+                <div className="text-[11px] text-zinc-600 italic">
+                  XML yükle, hücreler buraya gelecek.
+                </div>
+              ) : (
+                <div className="space-y-1 max-h-[40vh] overflow-y-auto pr-1">
+                  {cells.map((cell, i) => {
+                    const isSelected = i === selected;
+                    return (
+                      <div
+                        key={`${cell.rowIndex}-${cell.columnIndex}-${i}`}
+                        className={`flex items-center gap-1.5 rounded-md border px-1.5 py-1 ${
+                          isSelected
+                            ? 'bg-amber-400/10 border-amber-400/30'
+                            : 'bg-zinc-900/40 border-zinc-800/60 hover:border-zinc-700/80'
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => select(isSelected ? null : i)}
+                          className="text-[10px] font-mono text-zinc-500 w-12 shrink-0 text-left hover:text-zinc-300"
+                        >
+                          r{cell.rowIndex}c{cell.columnIndex}
+                        </button>
+                        <input
+                          type="text"
+                          value={cell.name}
+                          onChange={(e) => setName(i, e.target.value)}
+                          onBlur={saveCurrentToLibrary}
+                          className="flex-1 min-w-0 bg-zinc-950/80 border border-zinc-700/60 rounded px-2 py-1 text-xs text-zinc-100 focus:outline-none focus:border-emerald-500/60"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
-            {cells.length === 0 ? (
-              <div className="text-[11px] text-zinc-600 italic">
-                XML yükle, hücreler buraya gelecek.
-              </div>
-            ) : (
-              <div className="space-y-1 max-h-[40vh] overflow-y-auto pr-1">
-                {cells.map((cell, i) => {
-                  const isSelected = i === selected;
-                  return (
-                    <div
-                      key={`${cell.rowIndex}-${cell.columnIndex}-${i}`}
-                      className={`flex items-center gap-1.5 rounded-md border px-1.5 py-1 ${
-                        isSelected
-                          ? 'bg-amber-400/10 border-amber-400/30'
-                          : 'bg-zinc-900/40 border-zinc-800/60 hover:border-zinc-700/80'
-                      }`}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => select(isSelected ? null : i)}
-                        className="text-[10px] font-mono text-zinc-500 w-12 shrink-0 text-left hover:text-zinc-300"
-                      >
-                        r{cell.rowIndex}c{cell.columnIndex}
-                      </button>
-                      <input
-                        type="text"
-                        value={cell.name}
-                        onChange={(e) => setName(i, e.target.value)}
-                        onBlur={saveCurrentToLibrary}
-                        className="flex-1 min-w-0 bg-zinc-950/80 border border-zinc-700/60 rounded px-2 py-1 text-xs text-zinc-100 focus:outline-none focus:border-emerald-500/60"
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          )}
         </div>
         <input
           ref={groupFileInputRef}

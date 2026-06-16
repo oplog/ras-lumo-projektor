@@ -4,7 +4,7 @@ import { useStore } from 'zustand';
 import { create } from 'zustand';
 import { generateGrid } from './bilinear';
 import { mergeNamesByRowCol } from './cellNaming';
-import { makeEmptyLayout } from './defaults';
+import { makeBlankLayout } from './defaults';
 import { canonicalizeCorners, generateGridHomography, inferColumnDirection } from './homography';
 import { defaultSurfaceLabel } from './types';
 import type { Cell, Corner, Layout, Metadata, ScreenConfig, SurfaceType } from './types';
@@ -151,7 +151,7 @@ function regenWithExistingNames(layout: Layout): Cell[] {
 export const useLayoutStore = create<LayoutState>()(
   temporal(
     (set) => ({
-      layout: makeEmptyLayout(),
+      layout: makeBlankLayout(),
       selectedCellIndex: null,
       liveRegenerate: true,
       validationCount: 0,
@@ -228,10 +228,11 @@ export const useLayoutStore = create<LayoutState>()(
         set({ layout, selectedCellIndex: null, validationCount: 0, liveRegenerate: false }),
       resetLayout: () =>
         set({
-          layout: makeEmptyLayout(),
+          layout: makeBlankLayout(),
           selectedCellIndex: null,
           validationCount: 0,
           liveRegenerate: true,
+          currentEntryId: null,
         }),
       selectCell: (i) => set({ selectedCellIndex: i }),
       setLiveRegenerate: (v) => set({ liveRegenerate: v }),

@@ -12,6 +12,16 @@ export function inferGeometryMode(surfaceType: SurfaceType): GeometryMode {
 }
 
 /**
+ * Truly blank layout: no cells, no grid. Used as the boot state so the editor
+ * shows an empty page until the user opens or creates a file — editing only
+ * makes sense inside a file.
+ */
+export function makeBlankLayout(): Layout {
+  const base = makeEmptyLayout({ rows: 1, cols: 1 });
+  return { ...base, stationName: '', rowCount: 0, columnsPerRow: [], cells: [] };
+}
+
+/**
  * Sensible empty layout to bootstrap a new mapping session.
  *
  * Pass `{ rows, cols }` to size the grid (uniform columns per row). Total

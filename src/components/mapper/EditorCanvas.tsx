@@ -19,24 +19,8 @@ export function EditorCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
   const screen = layout.screen;
 
-  // Empty state: nothing loaded yet. Show a placeholder instead of the
-  // (effectively blank) canvas so the user knows where to start.
-  if (!currentEntryId && layout.cells.length === 0) {
-    return (
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="max-w-sm text-center space-y-3">
-          <div className="text-zinc-500 text-5xl leading-none">⌗</div>
-          <div className="text-zinc-300 text-sm font-medium">Henüz dosya yüklenmedi</div>
-          <div className="text-zinc-500 text-[11px] leading-relaxed">
-            Toolbar'dan <span className="text-zinc-300">XML Aç</span> ile bir
-            <code className="mx-1 font-mono text-zinc-300">projector-layout-X.xml</code>
-            dosyası yükle ya da sol panelden bir istasyon aç.
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  // NOTE: all hooks run unconditionally before any early return, so the hook
+  // order stays stable when toggling in/out of a file (Rules of Hooks).
   const [scale, setScale] = useState(1);
   useEffect(() => {
     const updateScale = () => {
@@ -52,17 +36,35 @@ export function EditorCanvas() {
     return () => ro.disconnect();
   }, [screen.width, screen.height]);
 
-  const strokeFat = clamp(3 / scale, 1.5, 3);
-  const strokeThin = clamp(1.5 / scale, 0.75, 1.5);
-
-  const cells = layout.cells;
-  const selectedCell = selectedCellIndex !== null ? (cells[selectedCellIndex] ?? null) : null;
-
   const cellColor = useMemo(
     () => (cell: Cell) =>
       `hsl(${(cell.rowIndex * 53 + cell.columnIndex * 31) % 360} 70% 60% / 0.18)`,
     [],
   );
+
+  // Empty state: not inside a file. Editing only makes sense within a loaded
+  // file, so show a placeholder until one is opened or created.
+  if (!currentEntryId) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="max-w-sm text-center space-y-3">
+          <div className="text-zinc-500 text-5xl leading-none">⌗</div>
+          <div className="text-zinc-300 text-sm font-medium">Bir dosyada değilsin</div>
+          <div className="text-zinc-500 text-[11px] leading-relaxed">
+            Sol panelden <span className="text-emerald-400/90">+ Yeni Dosya</span> oluştur, bir
+            kayda tıkla ya da toolbar'dan <span className="text-zinc-300">XML Aç</span> de. Tüm
+            düzenlemeler açtığın dosyaya işlenir.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const strokeFat = clamp(3 / scale, 1.5, 3);
+  const strokeThin = clamp(1.5 / scale, 0.75, 1.5);
+
+  const cells = layout.cells;
+  const selectedCell = selectedCellIndex !== null ? (cells[selectedCellIndex] ?? null) : null;
 
   return (
     <div
